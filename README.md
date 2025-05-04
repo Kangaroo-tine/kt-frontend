@@ -8,7 +8,7 @@ React Native 기반의 안드로이드 앱입니다.
 ## 🛠️ 기술 스택
 
 - **React Native**
-- **TypeScript** (선택사항)
+- **TypeScript** 
 - **React Navigation**
 - **AsyncStorage**
 - **Axios**
