@@ -2,16 +2,6 @@
 name: Custom issue template
 about: 이슈 템플릿
 title: ''
-labels: ADD, CHORE, DEL, DOCS, FEAT, FIX, HOTFIX, MERGE, MOD, MOVE, REFACTOR, RENAME,
-  UI
-assignees: oortmealy, eunhyekimyeah, whatisquery
-
----
-
----
-name: Custom issue template
-about: 이슈 템플릿
-title: ''
 labels: ''
 assignees: ''
 
