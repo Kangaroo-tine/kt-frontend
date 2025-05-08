@@ -17,6 +17,11 @@
    yarn start
    ```
 
+3. 엑스포 고 실행
+
+   ```bash
+   yarn start --tunnel --clear
+   ```
    실행 후 나오는 콘솔에서 아래 옵션 중 하나를 선택하여 앱을 실행할 수 있습니다:
 
    - [개발 빌드](https://docs.expo.dev/develop/development-builds/introduction/)
