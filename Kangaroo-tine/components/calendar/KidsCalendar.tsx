@@ -1,45 +1,71 @@
 // components/calendar/KidsCalendar.tsx
 
-import grayCheckImg from '@assets/icons/gray_check.png';
-import greenCheckImg from '@assets/icons/green_check.png';
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-
-
+import grayCheckImg from "@assets/icons/gray_check.png";
+import greenCheckImg from "@assets/icons/green_check.png";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Calendar } from "react-native-calendars";
+import EmotionDay from "./EmotionDay";
 
 const KidsCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
+  const [emotionData, setEmotionData] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchEmotionData = async () => {
+      // Mock test data
+      const data = [
+        { date: "2025-05-08", emotion: "joy" },
+        { date: "2025-05-09", emotion: "sad" },
+      ];
+
+      // Simulate async delay
+      setTimeout(() => {
+        const formatted = Object.fromEntries(
+          data.map((item) => [item.date, item.emotion])
+        );
+        setEmotionData(formatted);
+      }, 500);
+    };
+
+    fetchEmotionData();
+  }, []);
 
   const getDateLabel = (date: string) => {
     const d = new Date(date);
-    const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const dayNames = [
+      "일요일",
+      "월요일",
+      "화요일",
+      "수요일",
+      "목요일",
+      "금요일",
+      "토요일",
+    ];
     return `${d.getDate()}일 ${dayNames[d.getDay()]}`;
   };
 
-  const todoData: Record<string, { time: string; task: string; done: boolean }[]> = {
-    '8일 목요일': [
-      { time: '08:00', task: '양치하기', done: true },
-      { time: '09:00', task: '스트레칭 하기', done: false },
-      { time: '11:00', task: '책 읽기', done: true },
+  const todoData: Record<
+    string,
+    { time: string; task: string; done: boolean }[]
+  > = {
+    "8일 목요일": [
+      { time: "08:00", task: "양치하기", done: true },
+      { time: "09:00", task: "스트레칭 하기", done: false },
+      { time: "11:00", task: "책 읽기", done: true },
     ],
   };
 
   const markedDates = {
     [today]: {
       selected: true,
-      selectedColor: '#71C95D',
+      selectedColor: "#71C95D",
     },
     ...(selectedDate && {
       [selectedDate]: {
-        customStyles: {
-          container: {
-            borderWidth: 2,
-            borderColor: '#8B8B8B',
-            borderRadius: 50,
-          },
-        },
+        selected: true,
+        selectedColor: "#8B8B8B",
       },
     }),
   };
@@ -58,9 +84,9 @@ const KidsCalendar = () => {
           style={[
             styles.todoText,
             todo.done && {
-              textDecorationLine: 'line-through',
-              textDecorationStyle: 'solid',
-              color: '#999',
+              textDecorationLine: "line-through",
+              textDecorationStyle: "solid",
+              color: "#999",
             },
           ]}
         >
@@ -89,7 +115,14 @@ const KidsCalendar = () => {
         </Text>
         <View style={styles.barWrapper}>
           <View style={[styles.achievementBar, { width: `${percentage}%` }]} />
-          <Text style={[styles.kangaroo, { left: `${Math.max(0, percentage - 10)}%` }]}>🦘</Text>
+          <Text
+            style={[
+              styles.kangaroo,
+              { left: `${Math.max(0, percentage - 10)}%` },
+            ]}
+          >
+            🦘
+          </Text>
         </View>
       </View>
     );
@@ -100,17 +133,26 @@ const KidsCalendar = () => {
       <Text style={styles.title}>캘린더</Text>
       <Calendar
         onDayPress={(day) => setSelectedDate(day.dateString)}
-        markingType={'custom'}
+        markingType={"custom"}
         markedDates={markedDates}
         theme={{
-          todayTextColor: '#71C95D',
-          arrowColor: '#8B8B8B',
-          textMonthFontWeight: 'bold',
+          todayTextColor: "#71C95D",
+          arrowColor: "#8B8B8B",
+          textMonthFontWeight: "bold",
         }}
+        dayComponent={({ date, state }) => (
+          <EmotionDay
+            date={date.dateString}
+            state={state}
+            emotion={emotionData[date.dateString]}
+            isSelected={date.dateString === selectedDate}
+            onPress={setSelectedDate}
+          />
+        )}
       />
       <ScrollView style={styles.todoWrapper}>
         <Text style={styles.dateLabel}>
-          {selectedDate ? getDateLabel(selectedDate) : '날짜를 선택해주세요'}
+          {selectedDate ? getDateLabel(selectedDate) : "날짜를 선택해주세요"}
         </Text>
         <View>{selectedDate && renderTodoList(selectedDate)}</View>
         <View>{selectedDate && renderAchievementBar(selectedDate)}</View>
@@ -125,37 +167,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 50,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
     marginLeft: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   todoWrapper: {
     marginTop: 20,
     marginHorizontal: 20,
-    backgroundColor: '#F2FCF0',
+    backgroundColor: "#F2FCF0",
     padding: 16,
     borderRadius: 12,
     maxHeight: 300,
   },
   dateLabel: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
   },
   todoCard: {
-    backgroundColor: '#D7F5D0',
+    backgroundColor: "#D7F5D0",
     padding: 10,
     borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   todoTime: {
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: "600",
     marginRight: 8,
   },
   todoText: {
@@ -169,8 +211,8 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: '400',
-    color: '#555',
+    fontWeight: "400",
+    color: "#555",
   },
   achievementContainer: {
     marginTop: 12,
@@ -181,17 +223,17 @@ const styles = StyleSheet.create({
   },
   barWrapper: {
     height: 10,
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
     borderRadius: 5,
-    overflow: 'hidden',
-    position: 'relative',
+    overflow: "hidden",
+    position: "relative",
   },
   achievementBar: {
-    height: '100%',
-    backgroundColor: '#71C95D',
+    height: "100%",
+    backgroundColor: "#71C95D",
   },
   kangaroo: {
-    position: 'absolute',
+    position: "absolute",
     top: -18,
   },
 });
