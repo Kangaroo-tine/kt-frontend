@@ -5,31 +5,28 @@ import greenCheckImg from "@assets/icons/green_check.png";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
-import EmotionDay from "./EmotionDay";
+import PercentDay from "./PercentDay";
 
 const ParentCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const today = new Date().toISOString().split("T")[0];
-  const [emotionData, setEmotionData] = useState<Record<string, string>>({});
+  const [percentData, setPercentData] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const fetchEmotionData = async () => {
-      // Mock test data
+    const fetchPercentData = async () => {
       const data = [
-        { date: "2025-05-08", emotion: "joy" },
-        { date: "2025-05-09", emotion: "sad" },
+        { date: "2025-05-08", percent: 60 },
+        { date: "2025-05-09", percent: 100 },
       ];
-
-      // Simulate async delay
       setTimeout(() => {
         const formatted = Object.fromEntries(
-          data.map((item) => [item.date, item.emotion])
+          data.map((item) => [item.date, item.percent])
         );
-        setEmotionData(formatted);
+        setPercentData(formatted);
       }, 500);
     };
 
-    fetchEmotionData();
+    fetchPercentData();
   }, []);
 
   const getDateLabel = (date: string) => {
@@ -135,16 +132,12 @@ const ParentCalendar = () => {
         onDayPress={(day) => setSelectedDate(day.dateString)}
         markingType={"custom"}
         markedDates={markedDates}
-        theme={{
-          todayTextColor: "#71C95D",
-          arrowColor: "#8B8B8B",
-          textMonthFontWeight: "bold",
-        }}
+        //여기 테마 들어갓엇음
         dayComponent={({ date, state }) => (
-          <EmotionDay
+          <PercentDay
             date={date.dateString}
             state={state}
-            emotion={emotionData[date.dateString]}
+            percent={percentData[date.dateString]}
             isSelected={date.dateString === selectedDate}
             onPress={setSelectedDate}
           />

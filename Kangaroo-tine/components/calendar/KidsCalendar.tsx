@@ -135,11 +135,6 @@ const KidsCalendar = () => {
         onDayPress={(day) => setSelectedDate(day.dateString)}
         markingType={"custom"}
         markedDates={markedDates}
-        theme={{
-          todayTextColor: "#71C95D",
-          arrowColor: "#8B8B8B",
-          textMonthFontWeight: "bold",
-        }}
         dayComponent={({ date, state }) => (
           <EmotionDay
             date={date.dateString}
