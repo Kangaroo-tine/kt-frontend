@@ -4,6 +4,15 @@ module.exports = function (api) {
     presets: ['babel-preset-expo'],
     plugins: [
       'expo-router/babel',
+      [
+        'module-resolver',
+        {
+          alias: {
+            '@assets': './assets',
+            '@components': './components',
+          },
+        },
+      ],
     ],
   };
 };
