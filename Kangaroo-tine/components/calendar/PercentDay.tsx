@@ -88,12 +88,6 @@ const PercentDay = ({ date, state, percent, isSelected, onPress }: Props) => {
           <Text
             style={[
               styles.text,
-              {
-                transform: [
-                  { translateX: day < 10 ? -4.5 : -8 },
-                  { translateY: -10 },
-                ],
-              },
               !displayPercent && isSelected && styles.grayText,
             ]}
           >
@@ -136,10 +130,8 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     fontWeight: "500",
-    position: "absolute",
-    top: "50%",
-    left: "50%",
     textAlign: "center",
+    marginBottom: 2,
   },
   grayText: {
     color: "#333",

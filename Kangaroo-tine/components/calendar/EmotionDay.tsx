@@ -1,7 +1,7 @@
 // components/calendar/EmotionDay.tsx
 import { EMOTION_ICONS } from "@/constants/emotions";
 import React from "react";
-import { Image, Pressable, StyleSheet, Text } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface Props {
   date: string;
@@ -15,17 +15,28 @@ const EmotionDay = ({ date, state, emotion, isSelected, onPress }: Props) => {
   const day = parseInt(date.split("-")[2], 10);
 
   return (
-    <Pressable
-      onPress={() => onPress?.(date)}
-      style={[
-        styles.container,
-        isSelected && styles.selectedContainer,
-        state === "disabled" && styles.disabled,
-      ]}
+    <View
+      style={{
+        width: 42,
+        height: 52,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      <Text style={styles.text}>{day}</Text>
-      {emotion && <Image source={EMOTION_ICONS[emotion]} style={styles.icon} />}
-    </Pressable>
+      <Pressable
+        onPress={() => onPress?.(date)}
+        style={[
+          styles.container,
+          isSelected && styles.selectedContainer,
+          state === "disabled" && styles.disabled,
+        ]}
+      >
+        <Text style={styles.text}>{day}</Text>
+        {emotion && (
+          <Image source={EMOTION_ICONS[emotion]} style={styles.icon} />
+        )}
+      </Pressable>
+    </View>
   );
 };
 
@@ -50,13 +61,10 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     fontWeight: "500",
-    position: "absolute",
-    top: 8,
+    marginBottom: 5,
   },
   icon: {
     width: 25,
     height: 20,
-    position: "absolute",
-    bottom: 4,
   },
 });

@@ -1,16 +1,16 @@
 // components/calendar/ParentCalendar.tsx
-
-import grayCheckImg from "@assets/icons/gray_check.png";
-import greenCheckImg from "@assets/icons/green_check.png";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import PercentDay from "./PercentDay";
+import { useRouter } from "expo-router";
+import ScheduleBottomSheet from "../BottomSheet/ScheduleBottomSheet";
 
 const ParentCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const today = new Date().toISOString().split("T")[0];
   const [percentData, setPercentData] = useState<Record<string, number>>({});
+  const router = useRouter();
 
   useEffect(() => {
     const fetchPercentData = async () => {
@@ -54,21 +54,13 @@ const ParentCalendar = () => {
     ],
   };
 
-  const markedDates = {
-    [today]: {
-      selected: true,
-      selectedColor: "#71C95D",
-    },
-    ...(selectedDate && {
-      [selectedDate]: {
-        selected: true,
-        selectedColor: "#8B8B8B",
-      },
-    }),
-  };
-
   const renderTodoList = (date: string) => {
     const todos = todoData[getDateLabel(date)];
+    const label = getDateLabel(date);
+
+    console.log("🧪 date:", date);
+    console.log("🧪 label:", label);
+    console.log("🧪 todos:", todos);
 
     if (!todos || todos.length === 0) {
       return <Text style={styles.emptyText}>일정이 비어있어요.</Text>;
@@ -89,89 +81,79 @@ const ParentCalendar = () => {
         >
           {todo.task}
         </Text>
-        <Image
-          source={todo.done ? greenCheckImg : grayCheckImg}
-          style={styles.checkIcon}
-        />
       </View>
     ));
   };
 
-  const renderAchievementBar = (date: string) => {
-    const todos = todoData[getDateLabel(date)];
-    if (!todos || todos.length === 0) return null;
+  const markedDates = {
+    [today]: {
+      selected: true,
+      selectedColor: "#71C95D",
+    },
+    ...(selectedDate && {
+      [selectedDate]: {
+        selected: true,
+        selectedColor: "#8B8B8B",
+      },
+    }),
+  };
 
-    const doneCount = todos.filter((t) => t.done).length;
-    const totalCount = todos.length;
-    const percentage = (doneCount / totalCount) * 100;
-
-    return (
-      <View style={styles.achievementContainer}>
-        <Text style={styles.achievementText}>
-          {doneCount}/{totalCount}
-        </Text>
-        <View style={styles.barWrapper}>
-          <View style={[styles.achievementBar, { width: `${percentage}%` }]} />
-          <Text
-            style={[
-              styles.kangaroo,
-              { left: `${Math.max(0, percentage - 10)}%` },
-            ]}
-          >
-            🦘
-          </Text>
-        </View>
-      </View>
-    );
+  const handleDayPress = (day: { dateString: string }) => {
+    setSelectedDate(day.dateString);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>캘린더</Text>
-      <Calendar
-        onDayPress={(day) => setSelectedDate(day.dateString)}
-        markingType={"custom"}
-        markedDates={markedDates}
-        //여기 테마 들어갓엇음
-        dayComponent={({ date, state }) => (
-          <PercentDay
-            date={date.dateString}
-            state={state}
-            percent={percentData[date.dateString]}
-            isSelected={date.dateString === selectedDate}
-            onPress={setSelectedDate}
-          />
-        )}
-      />
-      <ScrollView style={styles.todoWrapper}>
-        <Text style={styles.dateLabel}>
-          {selectedDate ? getDateLabel(selectedDate) : "날짜를 선택해주세요"}
-        </Text>
-        <View>{selectedDate && renderTodoList(selectedDate)}</View>
-        <View>{selectedDate && renderAchievementBar(selectedDate)}</View>
-      </ScrollView>
+      <>
+        <Text style={styles.title}>캘린더</Text>
+        <Calendar
+          style={{ height: 320 }}
+          onDayPress={handleDayPress}
+          markingType={"custom"}
+          markedDates={markedDates}
+          theme={{
+            arrowColor: "#B5BEC6",
+            todayTextColor: "#B5BEC6",
+          }}
+          dayComponent={({ date, state }) => (
+            <PercentDay
+              date={date.dateString}
+              state={state}
+              percent={percentData[date.dateString]}
+              isSelected={date.dateString === selectedDate}
+              onPress={() => handleDayPress({ dateString: date.dateString })}
+            />
+          )}
+        />
+        <View style={{ marginTop: 100 }}></View>
+        <ScheduleBottomSheet
+          date={selectedDate}
+          getDateLabel={getDateLabel}
+          todoData={todoData}
+          onClose={() => {}}
+          onPressDetail={() =>
+            router.push({
+              pathname: "/calendar-detail",
+              params: { date: selectedDate },
+            })
+          }
+        />
+      </>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingTop: 50,
+    paddingTop: 20,
     backgroundColor: "#fff",
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: 25,
     marginLeft: 20,
-    fontWeight: "bold",
-  },
-  todoWrapper: {
-    marginTop: 20,
-    marginHorizontal: 20,
-    backgroundColor: "#F2FCF0",
-    padding: 16,
-    borderRadius: 12,
-    maxHeight: 300,
+    marginTop: 10,
+    fontWeight: "medium",
   },
   dateLabel: {
     fontSize: 20,
@@ -179,21 +161,26 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   todoCard: {
-    backgroundColor: "#D7F5D0",
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 10,
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
   },
   todoTime: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "600",
-    marginRight: 8,
+    color: "#333",
+    width: 60,
   },
   todoText: {
-    fontSize: 12,
+    fontSize: 14,
     flex: 1,
+    color: "#222",
   },
   checkIcon: {
     width: 16,
@@ -205,28 +192,23 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#555",
   },
-  achievementContainer: {
+  modalContent: {
+    backgroundColor: "#F2FCF0",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "60%",
+  },
+  closeButton: {
     marginTop: 12,
-  },
-  achievementText: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  barWrapper: {
-    height: 10,
-    backgroundColor: "#eee",
-    borderRadius: 5,
-    overflow: "hidden",
-    position: "relative",
-  },
-  achievementBar: {
-    height: "100%",
     backgroundColor: "#71C95D",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
   },
-  kangaroo: {
-    position: "absolute",
-    top: -18,
+  closeButtonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
-
 export default ParentCalendar;
