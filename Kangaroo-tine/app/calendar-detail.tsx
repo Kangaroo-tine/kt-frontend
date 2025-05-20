@@ -8,13 +8,15 @@ import {
   Image,
 } from "react-native";
 import downArrowImg from "../assets/icons/down_icon.png";
-import backArrowImg from "../assets/icons/back_icon.png";
+import BackButton from "../components/ui/BackButton";
 import { useLocalSearchParams } from "expo-router";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 
 export default function CalendarDetailPage() {
   const router = useRouter();
-  const { date } = useLocalSearchParams();
+  const { date, todo } = useLocalSearchParams();
   const selectedDate = typeof date === "string" ? date : "";
   const getDateLabel = (date: string) => {
     const d = new Date(date);
@@ -29,25 +31,62 @@ export default function CalendarDetailPage() {
     ];
     return `${d.getDate()}일 ${dayNames[d.getDay()]}`;
   };
+
+  const [todos, setTodos] = useState<
+    {
+      time: string;
+      task: string;
+      done: boolean;
+      repeatDays?: string[];
+      priority?: string;
+      details?: string[];
+    }[]
+  >([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const todoData: Record<
+        string,
+        {
+          time: string;
+          task: string;
+          done: boolean;
+          repeatDays?: string[];
+          priority?: string;
+          details?: string[];
+        }[]
+      > = {
+        "8일 목요일": [
+          {
+            time: "08:00-09:00",
+            task: "양치하기",
+            done: true,
+            repeatDays: ["월", "화", "수"],
+            priority: "상",
+            details: ["칫솔 준비", "입 헹구기"],
+          },
+          {
+            time: "11:00-12:00",
+            task: "책 읽기",
+            done: false,
+            priority: "중",
+          },
+        ],
+        // 추후 저장된 일정 목록 포함 가능
+      };
+      const label = selectedDate ? getDateLabel(selectedDate) : "";
+      const baseTodos = label ? todoData[label] || [] : [];
+      const newTodo = typeof todo === "string" ? JSON.parse(todo) : null;
+      setTodos(newTodo ? [...baseTodos, newTodo] : baseTodos);
+    }, [selectedDate, todo])
+  );
+
   const label = selectedDate ? getDateLabel(selectedDate) : "";
-  const todoData: Record<
-    string,
-    { time: string; task: string; done: boolean }[]
-  > = {
-    "8일 목요일": [
-      { time: "08:00", task: "양치하기", done: true },
-      { time: "09:00", task: "스트레칭 하기", done: false },
-      { time: "11:00", task: "책 읽기", done: true },
-    ],
-  };
-  const todos = label ? todoData[label] || [] : [];
 
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Image source={backArrowImg} style={styles.backIcon} />
-        </TouchableOpacity>
+        <BackButton />
         <Text style={styles.headerTitle}>일정 상세보기</Text>
       </View>
       <Text style={styles.todoCount}>
@@ -57,15 +96,19 @@ export default function CalendarDetailPage() {
 
       <ScrollView style={{ marginTop: 20 }} contentContainerStyle={{ gap: 12 }}>
         {todos.map((todo, i) => (
-          <View key={i} style={styles.todoCard}>
-            <Text style={styles.todoTime}>{todo.time}</Text>
-            <Text style={styles.todoTask}>{todo.task}</Text>
-            <Image source={downArrowImg} style={styles.todoArrow} />
-          </View>
+          <TodoItem key={i} todo={todo} />
         ))}
       </ScrollView>
 
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() =>
+          router.push({
+            pathname: "/add-schedule",
+            params: { date: selectedDate },
+          })
+        }
+      >
         <Text style={styles.addButtonText}>일정 추가하기</Text>
       </TouchableOpacity>
     </View>
@@ -74,23 +117,22 @@ export default function CalendarDetailPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: 30, // 80 → 40으로 상단 간격 줄임
     paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    justifyContent: "space-between",
     marginBottom: 12,
   },
-  backIcon: {
-    width: 16,
-    height: 16,
-  },
   headerTitle: {
+    flex: 1,
     fontSize: 18,
     fontWeight: "600",
+    textAlign: "center",
+    marginRight: 20, // 아이콘 때문에 오른쪽 여백 확보
   },
   todoCount: {
     fontSize: 18,
@@ -105,8 +147,7 @@ const styles = StyleSheet.create({
     color: "#555",
   },
   todoCard: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
     backgroundColor: "#D8F5CB",
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -115,16 +156,19 @@ const styles = StyleSheet.create({
   todoTime: {
     fontSize: 14,
     fontWeight: "bold",
-    width: 60,
+    width: 120,
+    paddingLeft: 1,
   },
   todoTask: {
     flex: 1,
     fontSize: 15,
+    textAlignVertical: "center",
   },
   todoArrow: {
     width: 16,
     height: 16,
     marginLeft: 8,
+    marginRight: 10,
   },
   addButton: {
     marginTop: 24,
@@ -139,4 +183,79 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  priority: {
+    backgroundColor: "#7DDF67",
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+  },
 });
+
+// Extracted TodoItem component for expand/collapse
+function TodoItem({
+  todo,
+}: {
+  todo: {
+    time: string;
+    task: string;
+    done: boolean;
+    repeatDays?: string[];
+    priority?: string;
+    details?: string[];
+  };
+}) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <View style={styles.todoCard}>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Text style={styles.todoTime}>
+          {todo.time.replace(/(\d+):(\d+)\s*([AP]M)/gi, (_, h, m, p) => {
+            let hour = parseInt(h, 10);
+            if (p.toUpperCase() === "PM" && hour !== 12) hour += 12;
+            if (p.toUpperCase() === "AM" && hour === 12) hour = 0;
+            return `${hour.toString().padStart(2, "0")}:${m}`;
+          })}
+        </Text>
+        <Text style={styles.todoTask} numberOfLines={1} ellipsizeMode="tail">
+          {todo.task}
+        </Text>
+        <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+          <Image source={downArrowImg} style={styles.todoArrow} />
+        </TouchableOpacity>
+      </View>
+      {expanded && (
+        <View style={{ marginTop: 8, paddingLeft: 120 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            {todo.priority && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontSize: 12, color: "#666", marginRight: 4 }}>
+                  중요도:
+                </Text>
+                <View style={styles.priority}>
+                  <Text
+                    style={{ fontSize: 12, fontWeight: "500", color: "#FFF" }}
+                  >
+                    {todo.priority}
+                  </Text>
+                </View>
+              </View>
+            )}
+            {todo.repeatDays?.length > 0 && (
+              <Text style={{ fontSize: 12, color: "#666" }}>
+                반복: {todo.repeatDays.join(", ")}
+              </Text>
+            )}
+          </View>
+          {todo.details?.map((d, idx) => (
+            <Text
+              key={idx}
+              style={{ fontSize: 12, color: "#444", marginTop: 4 }}
+            >
+              {`${idx + 1}. ${d}`}
+            </Text>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
