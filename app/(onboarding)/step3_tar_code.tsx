@@ -31,62 +31,21 @@ export default function ScreenCode() {
       </View>
       <View style={styles.titleWrapper}>
         <Text style={[Typo.title02, { color: Colors.gray900 }]}>
-          캥거루틴에서의
+          연결코드를
         </Text>
         <Text style={[Typo.title02, { color: Colors.gray900 }]}>
-          역할을 선택해주세요
+          보호자에게 전달하세요
         </Text>
       </View>
       <View style={styles.subtitleWrapper}>
         <Text style={[Typo.label02, { color: Colors.gray500 }]}>
-          보호자와 대상자 중 세부설명을 읽고 역할을 선택해 주세요
+          아래 보이는 연결코드를 보내 계정을 연동하세요
         </Text>
-      </View>
-      <View style={styles.roleButtonWrapper}>
-        <TouchableOpacity onPress={() => setSelectedRole('gard')}>
-          <View
-            style={{ width: '100%', maxWidth: 336, aspectRatio: 336 / 112 }}
-          >
-            {selectedRole !== 'target' ? (
-              <Gard_act
-                width="100%"
-                height="100%"
-                preserveAspectRatio="xMidYMid meet"
-              />
-            ) : (
-              <Gard_inact
-                width="100%"
-                height="100%"
-                preserveAspectRatio="xMidYMid meet"
-              />
-            )}
-          </View>
-        </TouchableOpacity>
-        <View style={{ height: 12 }} />
-        <TouchableOpacity onPress={() => setSelectedRole('target')}>
-          <View
-            style={{ width: '100%', maxWidth: 336, aspectRatio: 336 / 112 }}
-          >
-            {selectedRole !== 'gard' ? (
-              <Target_act
-                width="100%"
-                height="100%"
-                preserveAspectRatio="xMidYMid meet"
-              />
-            ) : (
-              <Target_inact
-                width="100%"
-                height="100%"
-                preserveAspectRatio="xMidYMid meet"
-              />
-            )}
-          </View>
-        </TouchableOpacity>
       </View>
       <TouchableOpacity
         style={styles.bottomButtonWrapper}
         disabled={!isActive}
-        onPress={() => router.push('/step2_phone')}
+        onPress={() => router.push('/step4_done')}
       >
         <View
           style={[

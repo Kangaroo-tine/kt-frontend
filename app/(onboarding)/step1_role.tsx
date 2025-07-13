@@ -86,7 +86,11 @@ export default function ScreenRole() {
       <TouchableOpacity
         style={styles.bottomButtonWrapper}
         disabled={!isActive}
-        onPress={() => router.push('/step2_phone')}
+        onPress={() =>
+          selectedRole === 'target'
+            ? router.push('/step2_tar_phone')
+            : router.push('/step2_gar_code')
+        }
       >
         <View
           style={[
