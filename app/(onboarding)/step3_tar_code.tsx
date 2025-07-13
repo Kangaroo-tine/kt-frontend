@@ -9,10 +9,6 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Back from '../../assets/gui/button/onboarding//backButton.svg';
-import Gard_act from '../../assets/gui/button/onboarding//gard_act.svg';
-import Gard_inact from '../../assets/gui/button/onboarding//gard_inact.svg';
-import Target_act from '../../assets/gui/button/onboarding//target_act.svg';
-import Target_inact from '../../assets/gui/button/onboarding//target_inact.svg';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
