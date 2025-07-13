@@ -42,17 +42,36 @@ export default function ScreenCode() {
           아래 보이는 연결코드를 보내 계정을 연동하세요
         </Text>
       </View>
+      <View style={{ height: 78 }} />
+      <View
+        style={{
+          height: 70,
+          marginHorizontal: 20,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: Colors.main600,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Text style={[Typo.title03, { color: Colors.main900 }]}>68AV112</Text>
+      </View>
+      <View style={styles.codeButtonWrapper}>
+        <TouchableOpacity style={[styles.codeButton, { marginRight: 8 }]}>
+          <Text style={[Typo.label01, { color: Colors.main900 }]}>
+            연결코드 다시받기
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.codeButton}>
+          <Text style={[Typo.label01, { color: Colors.main900 }]}>Copy</Text>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity
         style={styles.bottomButtonWrapper}
-        disabled={!isActive}
         onPress={() => router.push('/step4_done')}
       >
-        <View
-          style={[
-            styles.button,
-            { backgroundColor: isActive ? Colors.main600 : Colors.gray100 },
-          ]}
-        >
+        <View style={[styles.button, { backgroundColor: Colors.main600 }]}>
           <Text style={[Typo.heading02, { color: Colors.gray800 }]}>다음</Text>
         </View>
       </TouchableOpacity>
@@ -98,5 +117,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  codeBox: {
+    height: 70,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.main600,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 20,
+  },
+  codeButtonWrapper: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+  },
+  codeButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    backgroundColor: Colors.main600,
+    borderRadius: 12,
   },
 });
