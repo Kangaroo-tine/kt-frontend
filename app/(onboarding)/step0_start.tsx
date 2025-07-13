@@ -8,14 +8,15 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import KaKao from '../../assets/gui/button/onboarding//kakao.svg';
-import Logo from '../../assets/gui/logo/logo_light.svg';
+import Logo from '../../assets/logo.svg';
+import { Colors } from '../../constants/Colors';
 
 export default function ScreenStart() {
   const router = useRouter();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.logoWrapper}>
-        <Logo width={224} height={73} />
+        <Logo width={260} height={260} />
       </View>
       <TouchableOpacity
         style={styles.kakaoWrapper}
@@ -30,7 +31,7 @@ export default function ScreenStart() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#191919',
+    backgroundColor: Colors.gray0,
   },
   logoWrapper: {
     position: 'absolute',
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   },
   kakaoWrapper: {
     position: 'absolute',
-    bottom: '10%',
+    bottom: '25%',
     left: 0,
     right: 0,
     alignItems: 'center',

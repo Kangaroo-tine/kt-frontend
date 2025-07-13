@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   bottomButtonWrapper: {
     position: 'absolute',
-    bottom: '10%',
+    bottom: '5%',
     left: 0,
     right: 0,
     alignItems: 'center',
