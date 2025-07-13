@@ -67,7 +67,7 @@ export default function ScreenPhone() {
           <View
             style={[
               styles.inputWrapper,
-              { borderBottomColor: isActive ? Colors.main600 : Colors.gray300 },
+              { borderBottomColor: isActive ? Colors.main600 : Colors.gray200 },
             ]}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
