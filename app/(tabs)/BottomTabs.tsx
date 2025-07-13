@@ -22,7 +22,7 @@ import DependentMyPage from './dependent/mypage';
 
 //바텀탭의 아이콘, 홈헤더의 로고 임포트
 import { HomeIcon, CalendarIcon, EmotionIcon, MyPageIcon } from '@/components/icon/bottombar';
-import Logo from '../../assets/logo.svg';
+import Logo from '@/assets/logo.svg';
 
 const Tab = createBottomTabNavigator();
 
