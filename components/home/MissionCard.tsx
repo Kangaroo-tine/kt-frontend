@@ -1,41 +1,53 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  LayoutAnimation,
-  Modal,
-  Pressable,
-  ScrollView
-} from 'react-native';
-import { Typo } from '@/constants/Typo';
-import { Colors } from '@/constants/Colors';
+  Image,LayoutAnimation,Modal,
+  Pressable,ScrollView,StyleSheet,Text,
+  TouchableOpacity,View,} from 'react-native';
+//라이브러리
+import ImageViewer from 'react-native-image-zoom-viewer';
+//하위 컴포넌트
+import MissionConfirmModal from './MissionConfirmModal';
 
+//아이콘
 import CheerUpIcon from '@/assets/GUI/home_status/cheerup.svg';
-import GoodIcon from '@/assets/GUI/home_status/good.svg';
 import FailIcon from '@/assets/GUI/home_status/fail.svg';
+import GoodIcon from '@/assets/GUI/home_status/good.svg';
 import QuestionIcon from '@/assets/icon/dependent/question.svg';
 import PhotoIcon from '@/assets/icon/photo.svg';
 
+//폰트, 컬러
+import { Typo } from '@/constants/Typo';
+import { Colors } from '@/constants/Colors';
 
-type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED';
-
-type Props = {
-  id: bigint;
-  title: string;
-  description: string;
-  description_photo?: boolean;
-  requires_photo: boolean;
-  mission_start_time: string; // '09:00' 같은 포맷
-  mission_end_time: string;
-  status: MissionStatus;
+//미션 리스트 타입 포맷
+import { Mission, MissionStatus } from '@/types/mission';
+type Props = Mission & {
+  onComplete: () => void;
 };
+
+//사진 관련 시작
+const samplePhotos = [
+  require('../../assets/sample_photos/1.jpg'),
+  require('../../assets/sample_photos/2.jpg'),
+  require('../../assets/sample_photos/3.jpg'),
+  require('../../assets/sample_photos/4.jpg'),
+  require('../../assets/sample_photos/5.jpg'),
+];
+type IImageInfo = {
+  url: string; //해당 라이브러리는 url로만 사진을 로딩함
+  props?: {
+    //근데 테스트할 땐 정적이미지를 쓰기에 추가해줌
+    source: number;
+  };
+};
+//사진 관련 끝
+
 
 export default function MissionCard(props: Props) {
   const [isOpen, setIsOpen] = useState(false); //미션카드 터치
-  const [previewImage, setPreviewImage] = useState<any>(null); //사진 터치
+  const [visible, setImageVisible] = useState(false); //사진
+  const [index, setIndex] = useState(0); //사진 모달
+  const [isModalVisible, setModalVisible] = useState(false); //미션 완료 모달
 
   const toggleOpen = () => {
     //애니메이션 자동 적용 함수, 부드럽게 펼쳐지고 접히는
@@ -63,111 +75,146 @@ export default function MissionCard(props: Props) {
       : '미션완료하러가기';
   };
 
-  const samplePhotos = [
-    require('../../assets/sample_photos/1.jpg'),
-    require('../../assets/sample_photos/2.jpg'),
-    require('../../assets/sample_photos/3.jpg'),
-    require('../../assets/sample_photos/4.jpg'),
-    require('../../assets/sample_photos/5.jpg'),
-  ];
+  //미완인 미션의 완료 버튼을 눌렀을 때, status 전달 부분
+  const handleConfirm = () => {
+    setModalVisible(false);
+    props.onComplete(); // 상위에서 status를 COMPLETED로 업데이트
+  };
+
+  // ImageViewer용 이미지 포맷: { props: { source: number } }[]
+  //얘도 나중에 url사용하면 수정해줘야함
+  const imageUrls = samplePhotos.map((img) => ({
+    props: { source: img },
+  })) as unknown as IImageInfo[];
 
   return (
     <>
-        {/* 1. 카드 영역 */}
-        <TouchableOpacity style={styles.cardWrapper} onPress={toggleOpen} activeOpacity={0.95}>
+      {/* 1. 카드 영역 */}
+      <TouchableOpacity
+        style={styles.cardWrapper}
+        onPress={toggleOpen}
+        activeOpacity={0.95}
+      >
         <View
-            style={[
+          style={[
             styles.card,
             props.status === 'COMPLETED' ? styles.cardCompleted : {},
-            ]}
+          ]}
         >
-            {/* Close 상태인 카드 뷰 */}
-            <View style={styles.topRow}>
+          {/* Close 상태인 카드 뷰 */}
+          <View style={styles.topRow}>
             {renderIcon()}
             <View style={{ marginLeft: 16 }}>
-                <View style={styles.timeRow}>
+              <View style={styles.timeRow}>
                 <Text style={styles.timeText}>
-                    {Number(props.mission_start_time?.split(':')[0]) < 12 ? '오전' : '오후'} {props.mission_start_time}
-                </Text> 
+                  {Number(props.mission_start_time?.split(':')[0]) < 12
+                    ? '오전'
+                    : '오후'}{' '}
+                  {props.mission_start_time}
+                </Text>
                 {props.requires_photo && (
-                    <PhotoIcon width={15} height={15} style={{ marginLeft: 4 }} />
+                  <PhotoIcon width={15} height={15} style={{ marginLeft: 4 }} />
                 )}
-                </View>
-                <Text
+              </View>
+              <Text
                 style={[
-                    styles.title,
-                    props.status === 'COMPLETED' ? styles.completedText : {},
+                  styles.title,
+                  props.status === 'COMPLETED' ? styles.completedText : {},
                 ]}
                 numberOfLines={1}
-                >
+              >
                 {props.title}
-                </Text>
+              </Text>
             </View>
-            </View>
+          </View>
 
-            {/* Open 상태인 카드 뷰(상세내용 표시) */}
-            {isOpen && (
+          {/* Open 상태인 카드 뷰(상세내용 표시) */}
+          {isOpen && (
             <View style={styles.detailArea}>
-                {/* 상세설명 */}
-                <Text style={styles.description}>{props.description}</Text>
+              {/* 상세설명 */}
+              <Text style={styles.description}>{props.description}</Text>
 
-                {/* 상세설명에 사진이 있을 경우 사진들(임시 사진임) + 나중에 FlatList로 바꾸는 거 고민하기 */}
-                {props.description_photo && (
+              {/* 상세설명에 사진이 있을 경우 사진들(임시 사진임) + 나중에 FlatList로 바꾸는 거 고민하기 */}
+              {props.description_photo && (
                 <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.photoScroll}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.photoScroll}
+                >
+                  {samplePhotos.map((img, i) => (
+                    <Pressable
+                      key={i}
+                      onPress={() => {
+                        setIndex(i);
+                        setImageVisible(true);
+                      }}
                     >
-                    {samplePhotos.map((img, i) => (
-                        <Pressable key={i} onPress={() => setPreviewImage(img)}>
-                          <Image source={img} style={styles.photoBox} />
-                        </Pressable>
-                    ))}
+                      <Image source={img} style={styles.photoBox} />
+                    </Pressable>
+                  ))}
                 </ScrollView>
-                )}
+              )}
 
-                {/* 미완 상태라면 완료 버튼 표시와 켈퍼 버튼 */}
-                {props.status === 'NOT_STARTED' && (
+              {/* open 상태 && 미완 상태 => 완료 버튼, 켈퍼 버튼 유 */}
+              {props.status === 'NOT_STARTED' && (
                 <View style={styles.actionRow}>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <Text style={styles.buttonText}>{renderButtonText()}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.questionIconButton}>
-                        <QuestionIcon width={40} height={40} />
-                    </TouchableOpacity>
+                  {/*완료 버튼*/}
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => setModalVisible(true)}
+                    disabled={props.status !== 'NOT_STARTED'}
+                  >
+                    <Text style={styles.buttonText}>{renderButtonText()}</Text>
+                  </TouchableOpacity>
+                  {/*켈퍼 버튼*/}
+                  <TouchableOpacity style={styles.questionIconButton}>
+                    <QuestionIcon width={40} height={40} />
+                  </TouchableOpacity>
                 </View>
-                )}
+              )}
+              {/*완료 버튼 터치 시 나오는 모달*/}
+              <MissionConfirmModal
+                isVisible={isModalVisible}
+                onCancel={() => setModalVisible(false)} //모달 닫기(변경사항없음)
+                onConfirm={handleConfirm}
+                mission_start_time={props.mission_start_time}
+                title={props.title}
+              />
             </View>
-            )}
+          )}
         </View>
-        </TouchableOpacity>
+      </TouchableOpacity>
 
-        {/* 2. 모달 사진 뷰 */}
-        <Modal
-            visible={!!previewImage}
-            transparent
-            onRequestClose={() => setPreviewImage(null)}
-            >
-            <View style={styles.modalOverlay}>
-                <Pressable style={{ flex: 1 }} onPress={() => setPreviewImage(null)}>
-                <Image
-                    source={previewImage}
-                    style={styles.fullImage}
-                    resizeMode="contain"
-                />
-                </Pressable>
-            </View>
-        </Modal>
+      {/* 2. 모달 사진 뷰 */}
+      <Modal visible={visible} transparent={true}>
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.closeButton} onPress={() => setImageVisible(false)}>
+            <Text style={styles.closeText}>✕</Text>
+          </Pressable>
+          <ImageViewer
+          imageUrls={imageUrls}
+          index={index}
+          onSwipeDown={() => setImageVisible(false)}
+          enableSwipeDown={true}
+          onCancel={() => setImageVisible(false)}
+          saveToLocalByLongPress={false} // 저장 비활성화
+          backgroundColor="transparent" //내부 배경 제거
+        />
+        </View>
+        
+      </Modal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  cardWrapper: {                       //가장 상위 프레임
+  cardWrapper: {
+    //가장 상위 프레임
     marginVertical: 6, //상하여백
     paddingHorizontal: 16, //좌우여백
   },
-  card: {   //두번째 프레임
+  card: {
+    //두번째 프레임
     backgroundColor: Colors.gray0,
     borderRadius: 12,
     padding: 16,
@@ -177,7 +224,8 @@ const styles = StyleSheet.create({
   cardCompleted: {
     borderColor: Colors.main600,
   },
-  topRow: {  //close 상태일때의 프레임
+  topRow: {
+    //close 상태일때의 프레임
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -196,10 +244,11 @@ const styles = StyleSheet.create({
   completedText: {
     color: Colors.main900,
   },
-  detailArea: { //상세설명 프레임
-    borderTopColor: Colors.gray100,  // 위쪽 선 색상
+  detailArea: {
+    //상세설명 프레임
+    borderTopColor: Colors.gray100, // 위쪽 선 색상
     borderTopWidth: 1.5,
-    marginTop : 16,
+    marginTop: 16,
     paddingTop: 16,
   },
   description: {
@@ -215,11 +264,11 @@ const styles = StyleSheet.create({
   photoBox: {
     width: 60,
     height: 60,
-    //borderRadius: 6, 
+    //borderRadius: 6,
   }, //상세설명 프레임 끝
   actionRow: {
     flexDirection: 'row',
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   actionButton: {
@@ -233,17 +282,21 @@ const styles = StyleSheet.create({
     ...Typo.label01,
     color: Colors.main900,
   },
-  questionIconButton: {
-  },
+  questionIconButton: {},
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(97, 97, 97, 0.9)', //임의로 색 지정
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(97, 97, 97, 0.95)', //임의로 색 지정
   },
-  fullImage: {
-    width: '90%',
-    height: '90%',
-    borderRadius: 12,
-},
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 10,
+    padding: 14,
+  },
+    closeText: {
+    color: 'white',
+    fontSize: 23,
+    fontWeight: 'bold',
+  },
 });
