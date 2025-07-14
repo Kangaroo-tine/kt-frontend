@@ -3,6 +3,9 @@
 이 프로젝트는 [Expo](https://expo.dev) 기반의 **React Native** 앱입니다.  
 **TypeScript**, **Yarn**, **NativeWind**를 사용하여 개발되고 있습니다.
 
+테스트 실행 
+ npx expo start --tunnel
+
 ## 사용 기술 및 버전 정보
 
 - React Native: **0.79.2**
