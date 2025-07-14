@@ -1,19 +1,21 @@
-import MissionCard from '@/components/home/MissionCard';
-import MissionHeader from '@/components/home/MissionHeader';
-import { Colors } from '@/constants/Colors';
-
-import React from 'react';
-
+import React , { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-//import { View, Text, StyleSheet } from 'react-native';
+//하위 컴포넌트
+import MissionCard from '@/components/home/MissionCard';
+import MissionHeader from '@/components/home/MissionHeader';
 
-type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED';
+//컬러
+import { Colors } from '@/constants/Colors';
+
+//미션 리스트 타입 포맷
+import { Mission, MissionStatus } from '@/types/mission';
 
 //dependent 홈 구현
 export default function DependentHome() {
-  //임의 데이터 값
-  const missionList = [
+
+  //미션 임의 데이터 값
+  const missionList: Mission[] = [
     {
       id: BigInt(1),
       title: '마트가기',
@@ -22,7 +24,7 @@ export default function DependentHome() {
       requires_photo: true,
       mission_start_time: '9:00',
       mission_end_time: '10:00',
-      status: 'COMPLETED' as const,
+      status: 'COMPLETED',
     },
     {
       id: BigInt(2),
@@ -33,7 +35,7 @@ export default function DependentHome() {
       requires_photo: false,
       mission_start_time: '10:00',
       mission_end_time: '11:00',
-      status: 'FAILED' as const,
+      status: 'FAILED',
     },
     {
       id: BigInt(3),
@@ -42,9 +44,19 @@ export default function DependentHome() {
       requires_photo: true,
       mission_start_time: '15:00',
       mission_end_time: '18:00',
-      status: 'NOT_STARTED' as const,
+      status: 'NOT_STARTED',
     },
   ];
+
+  //미션 상태 업데이트 (미완 => 완료)
+  const [missionState, setMissionState] = useState(missionList);
+  const handleComplete = (id: bigint) => {
+    setMissionState(prev =>
+      prev.map(mission =>
+        mission.id === id ? { ...mission, status: 'COMPLETED' } : mission
+      )
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -57,10 +69,14 @@ export default function DependentHome() {
         />
       </View>
 
-      {/* 미션 카드 스크롤 영역 */}
+      {/* 하단 미션 카드 스크롤 영역 */}
       <ScrollView contentContainerStyle={styles.scrollArea}>
-        {missionList.map((mission) => (
-          <MissionCard key={mission.id.toString()} {...mission} />
+        {missionState.map((mission) => (
+          <MissionCard
+            key={mission.id.toString()}
+            {...mission}
+            onComplete={() => handleComplete(mission.id)}
+          />
         ))}
       </ScrollView>
     </View>
