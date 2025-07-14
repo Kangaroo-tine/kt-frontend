@@ -8,11 +8,13 @@ import { TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Back from '../../assets/gui/button/onboarding//backButton.svg';
-import Gard_act from '../../assets/gui/button/onboarding//gard_act.svg';
-import Gard_inact from '../../assets/gui/button/onboarding//gard_inact.svg';
-import Target_act from '../../assets/gui/button/onboarding//target_act.svg';
-import Target_inact from '../../assets/gui/button/onboarding//target_inact.svg';
+//아이콘
+import Back from '../../assets/icon/arrow/back_arrow.svg';
+import Gard_act from '../../assets/temp/gard_act.svg';
+import Gard_inact from '../../assets/temp/gard_inact.svg';
+import Target_act from '../../assets/temp/target_act.svg';
+import Target_inact from '../../assets/temp/target_inact.svg';
+//폰트, 컬러
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 

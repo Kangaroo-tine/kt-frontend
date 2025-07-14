@@ -7,8 +7,10 @@ import { TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import KaKao from '../../assets/gui/button/onboarding//kakao.svg';
-import Logo from '../../assets/logo.svg';
+import Logo from '../../assets/GUI/delete_account_dependent.svg';
+//아이콘
+import KaKao from '../../assets/GUI/kakao.svg';
+//컬러
 import { Colors } from '../../constants/Colors';
 
 export default function ScreenStart() {

@@ -8,7 +8,9 @@ import { TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Back from '../../assets/gui/button/onboarding//backButton.svg';
+//아이콘
+import Back from '../../assets/icon/arrow/back_arrow.svg';
+//폰트,컬러
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 

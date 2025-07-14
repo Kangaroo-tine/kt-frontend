@@ -18,8 +18,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Back from '../../assets/gui/button/onboarding//backButton.svg';
-import Taget from '../../assets/gui/button/onboarding/target.svg';
+//아이콘
+import Back from '../../assets/icon/arrow/back_arrow.svg';
+import Taget from '../../assets/icon/dependent/target.svg';
+//폰트, 컬러
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
