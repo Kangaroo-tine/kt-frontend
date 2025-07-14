@@ -10,8 +10,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Back from '../../assets/gui/button/onboarding//backButton.svg';
-import Done from '../../assets/gui/button/onboarding//done.svg';
+import Done from '../../assets/GUI/done.svg';
+//아이콘
+import Back from '../../assets/icon/arrow/back_arrow.svg';
+//폰트,컬러
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
