@@ -47,7 +47,7 @@ export default function CompleteScreen() {
       <TouchableOpacity
         style={styles.bottomButtonWrapper}
         disabled={!isActive}
-        onPress={() => router.push('/step4_done')}
+        onPress={() => router.push('/(tabs)/BottomTabs')}
       >
         <View
           style={[

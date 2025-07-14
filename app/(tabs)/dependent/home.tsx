@@ -12,6 +12,7 @@ type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED';
 
 //dependent 홈 구현
 export default function DependentHome() {
+  //임의 데이터 값
   const missionList = [
     {
       id: BigInt(1),
