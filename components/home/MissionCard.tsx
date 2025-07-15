@@ -175,7 +175,7 @@ export default function MissionCard(props: Props) {
               {/*완료 버튼 터치 시 나오는 모달*/}
               <MissionConfirmModal
                 isVisible={isModalVisible}
-                onCancel={() => setModalVisible(false)} //모달 닫기(변경사항없음)
+                onCancel={() => setModalVisible(false)} 
                 onConfirm={handleConfirm}
                 mission_start_time={props.mission_start_time}
                 title={props.title}
@@ -197,11 +197,10 @@ export default function MissionCard(props: Props) {
           onSwipeDown={() => setImageVisible(false)}
           enableSwipeDown={true}
           onCancel={() => setImageVisible(false)}
-          saveToLocalByLongPress={false} // 저장 비활성화
-          backgroundColor="transparent" //내부 배경 제거
+          saveToLocalByLongPress={false} 
+          backgroundColor="transparent" 
         />
         </View>
-        
       </Modal>
     </>
   );
