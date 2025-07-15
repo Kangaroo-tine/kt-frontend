@@ -10,9 +10,20 @@ import { Colors } from '@/constants/Colors';
 
 //미션 리스트 타입 포맷
 import { Mission, MissionStatus } from '@/types/mission';
+import { Header, EmotionType } from '@/types/homeHeader';
 
 //dependent 홈 구현
 export default function DependentHome() {
+  //헤더 임의 데이터 값
+  const header: Header[] = [
+    {
+      userName: '장효원',
+      mission_count: 3,
+      mission_complete: 3,
+      date: '2025-07-15',
+      daily_emotion: null,
+    },
+  ];
 
   //미션 임의 데이터 값
   const missionList: Mission[] = [
@@ -44,11 +55,11 @@ export default function DependentHome() {
       requires_photo: true,
       mission_start_time: '15:00',
       mission_end_time: '18:00',
-      status: 'NOT_STARTED',
+      status: 'COMPLETED',
     },
   ];
 
-  //미션 상태 업데이트 (미완 => 완료)
+  //미션 상태 업데이트 (미완 => 완료) , id를 기준으로 상태 업데이트
   const [missionState, setMissionState] = useState(missionList);
   const handleComplete = (id: bigint) => {
     setMissionState(prev =>
@@ -58,14 +69,23 @@ export default function DependentHome() {
     );
   };
 
+  //daliy감정 상태 업데이트, date를 기준으로 감정을 업데이트
+  const [emotionState, setEmotionState] = useState(header);
+  const handleDaliyEmotion = (date: string, emotion: EmotionType) => {
+    setEmotionState((prev) =>
+      prev.map((header) =>
+        header.date === date ? { ...header, daily_emotion: emotion } : header
+      )
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* 상단 고정 MissionHeader */}
       <View style={styles.header}>
         <MissionHeader
-          userName="장효원"
-          mission_count={3}
-          mission_complete={1}
+          {...emotionState[0]}
+          daliyEmotionSelected={(emotion) => handleDaliyEmotion(emotionState[0].date, emotion)}
         />
       </View>
 
@@ -84,15 +104,16 @@ export default function DependentHome() {
 }
 
 const styles = StyleSheet.create({
+  // 최상위 프레임
   container: {
     flex: 1,
-    backgroundColor: Colors.gray100, // 최상위 프레임
-  },
+    backgroundColor: Colors.gray100, 
+  },//헤더 영역
   header: {
-    backgroundColor: Colors.gray0, //헤더 영역
-  },
+    backgroundColor: Colors.gray0, 
+  },//미션 카드 영역
   scrollArea: {
     paddingVertical: 12,
-    paddingHorizontal: 7, //미션 카드 영역
+    paddingHorizontal: 7, 
   },
 });
