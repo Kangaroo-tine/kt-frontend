@@ -58,13 +58,15 @@ export default function ScreenCode() {
             </Text>
           </View>
           <View style={{ height: 60 }} />
+          
+          {/*대상자 선택 , parent*/}
           <View style={styles.subtitleWrapper}>
             <View
               style={{
                 borderRadius: 12,
                 borderWidth: 1,
                 borderColor: selectedRole ? Colors.main500 : Colors.gray200,
-                overflow: 'hidden',
+                overflow: 'hidden', 
                 marginTop: 12,
               }}
             >
@@ -161,6 +163,7 @@ export default function ScreenCode() {
             </View>
           </View>
 
+          {/*연결코드 입력 , parent*/}
           <View
             style={[
               styles.inputWrapper,
@@ -171,8 +174,7 @@ export default function ScreenCode() {
                   ? Colors.main600
                   : Colors.gray300,
               },
-            ]}
-          >
+            ]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TextInput
                 style={[styles.input, { flex: 1 }]}
@@ -204,6 +206,7 @@ export default function ScreenCode() {
               )}
             </View>
           </View>
+          {/*인증하기 버튼 , parent*/}
           <TouchableOpacity
             style={styles.bottomButtonWrapper}
             disabled={!isActive}
