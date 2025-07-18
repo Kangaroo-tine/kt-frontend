@@ -99,7 +99,7 @@ export default function BottomTabs() {
       />
       <Tab.Screen
         name="Emotion"
-        component={DependentEmotion}
+        component={ParentEmotion}
         options={{
           headerTitle: () => <Text style={Typo.heading04}>감정기록</Text>,
           tabBarIcon: ({ focused }) => (
