@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Typo } from '@/constants/Typo';
-import { Colors } from '@/constants/Colors';
-
-import HomeDependentIcon from '@/assets/GUI/home_dependent.svg';
-
-type Props = {
-  userName: string;
-  mission_count: number;
-  mission_complete: number;
-};
-
-export default function MissionHeader({ userName, mission_count, mission_complete }: Props) {
-  const progressRatio = mission_count === 0 ? 0 : mission_complete / mission_count;
-  const percentage = Math.round(progressRatio * 100);
-
-=======
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity} from 'react-native';
 //폰트, 컬러
@@ -47,40 +28,19 @@ export default function MissionHeader(props: Props) {
     setIsEmotionRecorded(true);  //하루 마무리 감정 선택 버튼 비활성화
   };
 
->>>>>>> e54ec895c734da48f69005b8a4edbad3175a42f3
   return (
     <View style={styles.container}>
       {/* 인사 + 캐릭터 */}
       <View style={styles.topRow}>
         <View>
-<<<<<<< HEAD
-          <Text style={styles.name}>{userName}님!</Text>
-          <Text style={styles.subtitle}>오늘도{"\n"}미션하러 가볼까요?</Text>
-=======
           <Text style={styles.name}>{props.userName}님!</Text>
           {isAllCompleted? (<Text style={styles.subtitle}>오늘의 미션 완료!{"\n"}{isEmotionRecorded ? '내일도 화이팅!' : '지금 기분은 어떤가요?'}</Text>) 
           : (<Text style={styles.subtitle}>오늘도{"\n"}미션하러 가볼까요?</Text>)}
->>>>>>> e54ec895c734da48f69005b8a4edbad3175a42f3
         </View>
         <HomeDependentIcon width={120} height={120} />
       </View>
 
       {/* 진행 텍스트 */}
-<<<<<<< HEAD
-      <View style={styles.progressTextRow}>
-        <Text style={styles.progressText}>총 @{mission_complete}개의 미션을 완료했어요!</Text>
-        <Text style={styles.progressCount}>{mission_complete}/{mission_count}</Text>
-      </View>
-
-      {/* 진행 바 */}
-        <View style={styles.progressBarContainer}>
-        {/* 바 전체 배경 */}
-            <View style={styles.progressBarBackground}>
-                {/* 진행도에 따른 채워지는 부분 */}
-                <View style={[styles.progressBarFill, { width: `${progressRatio * 100}%` }]} />
-            </View>
-        </View>
-=======
       { isAllCompleted? (
         <>
           <View style={styles.emotionWrapper}>
@@ -114,7 +74,6 @@ export default function MissionHeader(props: Props) {
           onConfirm={handleConfirm}
           date={"2025-07-15"}
         />
->>>>>>> e54ec895c734da48f69005b8a4edbad3175a42f3
     </View>
   );
 }
@@ -132,10 +91,6 @@ const styles = StyleSheet.create({
   },
   name: {
     ...Typo.title03,
-<<<<<<< HEAD
-    //fontWeight: 'bold',
-=======
->>>>>>> e54ec895c734da48f69005b8a4edbad3175a42f3
     color: Colors.main700,
   },
   subtitle: {
@@ -157,22 +112,6 @@ const styles = StyleSheet.create({
     ...Typo.label03,
     color: '#A6A6A6',
   },
-<<<<<<< HEAD
-    progressBarContainer: {
-        marginTop: 12,
-    },
-    progressBarBackground: {
-        height: 17,
-        backgroundColor: Colors.main100,
-        borderRadius: 999,
-        overflow: 'hidden',
-    },
-    progressBarFill: {
-        height: '100%',
-        backgroundColor: Colors.main500,
-        borderRadius: 999,
-    },
-=======
   progressBarContainer: {
     marginTop: 12,
   },
@@ -204,5 +143,4 @@ const styles = StyleSheet.create({
     ...Typo.heading04,
     color: Colors.main900,
   },
->>>>>>> e54ec895c734da48f69005b8a4edbad3175a42f3
 });
