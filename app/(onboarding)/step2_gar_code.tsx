@@ -58,7 +58,7 @@ export default function ScreenCode() {
             </Text>
           </View>
           <View style={{ height: 60 }} />
-          
+
           {/*대상자 선택 , parent*/}
           <View style={styles.subtitleWrapper}>
             <View
@@ -66,7 +66,7 @@ export default function ScreenCode() {
                 borderRadius: 12,
                 borderWidth: 1,
                 borderColor: selectedRole ? Colors.main500 : Colors.gray200,
-                overflow: 'hidden', 
+                overflow: 'hidden',
                 marginTop: 12,
               }}
             >
@@ -174,7 +174,8 @@ export default function ScreenCode() {
                   ? Colors.main600
                   : Colors.gray300,
               },
-            ]}>
+            ]}
+          >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TextInput
                 style={[styles.input, { flex: 1 }]}
