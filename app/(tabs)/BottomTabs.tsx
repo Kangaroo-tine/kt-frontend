@@ -26,9 +26,9 @@ import DependentEmotion from './dependent/emotion';
 //Dependent - 일단 대상자 화면만 뜨도록 설정해놓음 - 분기는 나중에 구현
 import DependentHome from './dependent/home';
 import DependentMyPage from './dependent/mypage';
+//각 화면 임포트 - Parent
 import ParentCalendar from './parent/calendar';
 import ParentEmotion from './parent/emotion';
-//각 화면 임포트 - Parent
 import ParentHome from './parent/home';
 import ParentMyPage from './parent/mypage';
 
@@ -61,7 +61,7 @@ export default function BottomTabs() {
         name="Home"
         component={DependentHome}
         options={{
-          headerTitle: () => null,
+          headerTitle: () => <></>,
           headerLeft: () => (
             <View style={{ paddingLeft: 12 }}>
               <Logo width={responsiveW(80)} height={responsiveH(20)} />
@@ -74,7 +74,16 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: '홈',
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              홈
+            </Text>
+          ),
         }}
       />
       <Tab.Screen
@@ -128,7 +137,16 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: '감정기록',
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              감정기록
+            </Text>
+          ),
         }}
       />
       <Tab.Screen
@@ -155,7 +173,16 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: '마이페이지',
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              마이페이지
+            </Text>
+          ),
         }}
       />
     </Tab.Navigator>

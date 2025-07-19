@@ -1,8 +1,4 @@
 // app/(onboarding)/start.tsx
-//폰트, 컬러
-import { Colors } from '@/constants/Colors';
-import { Typo } from '@/constants/Typo';
-
 import * as React from 'react';
 import { useState } from 'react';
 
@@ -25,6 +21,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 //아이콘
 import Back from '../../assets/icon/arrow/back_arrow.svg';
 import Taget from '../../assets/icon/dependent/target.svg';
+//폰트, 컬러
+import { Colors } from '../../constants/Colors';
+import { Typo } from '../../constants/Typo';
 
 export default function ScreenCode() {
   const router = useRouter();
@@ -59,6 +58,8 @@ export default function ScreenCode() {
             </Text>
           </View>
           <View style={{ height: 60 }} />
+
+          {/*대상자 선택 , parent*/}
           <View style={styles.subtitleWrapper}>
             <View
               style={{
@@ -162,6 +163,7 @@ export default function ScreenCode() {
             </View>
           </View>
 
+          {/*연결코드 입력 , parent*/}
           <View
             style={[
               styles.inputWrapper,
@@ -205,6 +207,7 @@ export default function ScreenCode() {
               )}
             </View>
           </View>
+          {/*인증하기 버튼 , parent*/}
           <TouchableOpacity
             style={styles.bottomButtonWrapper}
             disabled={!isActive}
