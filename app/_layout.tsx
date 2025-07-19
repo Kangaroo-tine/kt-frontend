@@ -1,4 +1,5 @@
 import { useColorScheme } from '@/hooks/useColorScheme';
+
 import React from 'react';
 
 //전역 라우팅 제어, 여기서 어떤 화면으로 갈지 분기

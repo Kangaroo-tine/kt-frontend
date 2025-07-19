@@ -74,7 +74,14 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: ({ focused }) => (<Text style={[Typo.label01, { color: focused ? Colors.main700 : Colors.gray300 }]}>홈
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              홈
             </Text>
           ),
         }}
@@ -83,7 +90,19 @@ export default function BottomTabs() {
         name="Calendar"
         component={DependentCalendar}
         options={{
-          headerTitle: () => <Text style={Typo.heading04}>캘린더</Text>,
+          headerTitle: () => (
+            <View
+              style={{
+                padding: 12,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ ...Typo.heading04, color: Colors.gray800 }}>
+                캘린더
+              </Text>
+            </View>
+          ),
           tabBarIcon: ({ focused }) => (
             <CalendarIcon
               color={focused ? Colors.main700 : Colors.gray300}
@@ -91,16 +110,26 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: ({ focused }) => (<Text style={[Typo.label01, { color: focused ? Colors.main700 : Colors.gray300 }]}>캘린더
-            </Text>
-          ),
+          tabBarLabel: '캘린더',
         }}
       />
       <Tab.Screen
         name="Emotion"
         component={DependentEmotion}
         options={{
-          headerTitle: () => <Text style={Typo.heading04}>감정기록</Text>,
+          headerTitle: () => (
+            <View
+              style={{
+                padding: 12,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ ...Typo.heading04, color: Colors.gray800 }}>
+                감정기록
+              </Text>
+            </View>
+          ),
           tabBarIcon: ({ focused }) => (
             <EmotionIcon
               color={focused ? Colors.main700 : Colors.gray300}
@@ -108,7 +137,14 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: ({ focused }) => (<Text style={[Typo.label01, { color: focused ? Colors.main700 : Colors.gray300 }]}>감정기록
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              감정기록
             </Text>
           ),
         }}
@@ -117,7 +153,19 @@ export default function BottomTabs() {
         name="MyPage"
         component={DependentMyPage}
         options={{
-          headerTitle: () => <Text style={Typo.heading04}>마이페이지</Text>,
+          headerTitle: () => (
+            <View
+              style={{
+                padding: 12,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ ...Typo.heading04, color: Colors.gray800 }}>
+                마이 페이지
+              </Text>
+            </View>
+          ),
           tabBarIcon: ({ focused }) => (
             <MyPageIcon
               color={focused ? Colors.main700 : Colors.gray300}
@@ -125,7 +173,14 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: ({ focused }) => (<Text style={[Typo.label01, { color:  focused ? Colors.main700 : Colors.gray300 }]}>마이페이지
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              마이페이지
             </Text>
           ),
         }}

@@ -1,6 +1,7 @@
-import BottomTabs from './BottomTabs';
 import React from 'react';
 
+import BottomTabs from './BottomTabs';
+
 export default function Layout() {
-  return (<BottomTabs />);
+  return <BottomTabs />;
 }

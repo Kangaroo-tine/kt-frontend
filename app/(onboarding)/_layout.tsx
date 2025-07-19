@@ -1,6 +1,7 @@
 // app/(onboarding)/_layout.tsx
-import { View } from 'react-native';
 import React from 'react';
+
+import { View } from 'react-native';
 
 import { Slot } from 'expo-router';
 
