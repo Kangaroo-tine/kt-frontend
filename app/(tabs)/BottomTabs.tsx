@@ -1,5 +1,6 @@
 // BottomTabs.tsx
-import Logo from '@/assets/GUI/logo/logo_dark.svg';
+import React from 'react';
+
 //아이콘
 import {
   CalendarIcon,
@@ -7,13 +8,13 @@ import {
   HomeIcon,
   MyPageIcon,
 } from '@/components/icon/bottombar';
+import Logo from '@/assets/GUI/logo/logo_dark.svg';
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
 //px에서 화면 비율에 맞는 크기로 변환해주는 유틸
 import { responsiveH, responsiveW } from '@/scripts/utils/responsive';
 
-import React from 'react';
 
 import { Text, View } from 'react-native';
 
@@ -21,9 +22,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 //화면 아래 handle부분 처리
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+//Dependent - 일단 대상자 화면만 뜨도록 설정해놓음 - 분기는 나중에 구현
 import DependentCalendar from './dependent/calendar';
 import DependentEmotion from './dependent/emotion';
-//Dependent - 일단 대상자 화면만 뜨도록 설정해놓음 - 분기는 나중에 구현
 import DependentHome from './dependent/home';
 import DependentMyPage from './dependent/mypage';
 //각 화면 임포트 - Parent
@@ -59,9 +60,9 @@ export default function BottomTabs() {
     >
       <Tab.Screen
         name="Home"
-        component={DependentHome}
+        component={ParentHome}
         options={{
-          headerTitle: () => <></>,
+          headerTitle: () => <View />,
           headerLeft: () => (
             <View style={{ paddingLeft: 12 }}>
               <Logo width={responsiveW(80)} height={responsiveH(20)} />
@@ -115,7 +116,7 @@ export default function BottomTabs() {
       />
       <Tab.Screen
         name="Emotion"
-        component={DependentEmotion}
+        component={ParentEmotion}
         options={{
           headerTitle: () => (
             <View
