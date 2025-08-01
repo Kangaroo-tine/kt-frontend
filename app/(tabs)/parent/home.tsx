@@ -78,7 +78,7 @@ export default function ParentHome() {
           </View>
           <HomeDependentIcon width={120} height={120} />
         </View>
-        <Text style={styles.pendingMission}>승인할 미션 3개</Text>
+        <Text style={styles.pendingMission}>승인할 미션 1개</Text>
       </View>
       {/* 하단 미션 카드 스크롤 영역 */}
       <ScrollView contentContainerStyle={styles.scrollArea}>
