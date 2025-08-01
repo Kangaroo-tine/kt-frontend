@@ -5,6 +5,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { PropsWithChildren, useState } from 'react';
+import React from 'react';
 
 import { StyleSheet, TouchableOpacity } from 'react-native';
 

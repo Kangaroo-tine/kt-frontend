@@ -2,7 +2,7 @@ import React , { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 //하위 컴포넌트
-import MissionCard from '@/components/home/MissionCard';
+import MissionCard from '@/components/home/MissionCardDependent';
 import MissionHeader from '@/components/home/MissionHeader';
 
 //컬러
@@ -55,11 +55,11 @@ export default function DependentHome() {
       requires_photo: true,
       mission_start_time: '15:00',
       mission_end_time: '18:00',
-      status: 'COMPLETED',
+      status: 'NOT_STARTED',
     },
   ];
 
-  //미션 상태 업데이트 (미완 => 완료) , id를 기준으로 상태 업데이트
+  //미션 상태 업데이트 (미완 => 완료), id를 기준으로 상태 업데이트
   const [missionState, setMissionState] = useState(missionList);
   const handleComplete = (id: bigint) => {
     setMissionState(prev =>
