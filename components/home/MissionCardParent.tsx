@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Image,LayoutAnimation,Modal,
 Pressable,ScrollView,StyleSheet,Text,
 TouchableOpacity,View,} from 'react-native';
-console.log('📍 MissionCardParent 렌더링됨');
+console.log('📍 MissionCardParent 렌더링');
   //라이브러리
 import ImageViewer from 'react-native-image-zoom-viewer';
 
@@ -158,7 +158,7 @@ export default function MissionCard(props: Props){
           )} 
         </View>
       </TouchableOpacity>
-      /* 2. 모달 사진 뷰 
+      {/* 2. 모달 사진 뷰 */}
       <Modal visible={visible} transparent={true}>
         <View style={styles.modalOverlay}>
           <Pressable style={styles.closeButton} onPress={() => setImageVisible(false)}>

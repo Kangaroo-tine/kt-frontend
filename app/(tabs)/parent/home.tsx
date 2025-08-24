@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-console.log('📍 ParentHome 렌더링됨');
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+console.log('📍 ParentHome 렌더링');
 //폰트, 컬러
 import { Typo } from '@/constants/Typo';
 import { Colors } from '@/constants/Colors';
@@ -9,13 +12,14 @@ import { Colors } from '@/constants/Colors';
 import { Mission, MissionStatus } from '@/types/mission';
 //하위 컴포넌트
 import MissionCard from '@/components/home/MissionCardParent';
-
-
 //아이콘
 import HomeDependentIcon from '@/assets/GUI/home_dependent.svg';
+import MapIcon from '@/assets/icon/Floating.svg';
 
 //parent 홈 구현
 export default function ParentHome() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
   //미션 임의 데이터 값
   const missionList: Mission[] = [
     {
@@ -72,7 +76,7 @@ export default function ParentHome() {
       <View style={styles.header}>
         <View style={styles.topRow}>
           <View>
-            <Text style={styles.nameText}>장효원</Text>
+            <Text style={styles.nameText}>장효원님께서</Text>
             <Text style={styles.missionTitleText}>아침먹기</Text>
             <Text style={styles.nameText}>미션을 완료했습니다!</Text>
           </View>
@@ -91,6 +95,16 @@ export default function ParentHome() {
           />
         ))}
       </ScrollView>
+      <TouchableOpacity
+        style={[styles.map, { bottom: insets.bottom}]}
+        activeOpacity={0.85}
+        onPress={() => router.push('/map')} 
+        accessibilityRole="button"
+        accessibilityLabel="지도 열기"
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <MapIcon width={63} height={63} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -136,5 +150,13 @@ const styles = StyleSheet.create({
   scrollArea: {
     paddingVertical: 12,
     paddingHorizontal: 7,
+  },
+  map: {
+    position: 'absolute',
+    right: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+ 
+    
   },
 });

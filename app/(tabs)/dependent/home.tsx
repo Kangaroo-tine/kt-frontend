@@ -19,7 +19,7 @@ export default function DependentHome() {
     {
       userName: '장효원',
       mission_count: 3,
-      mission_complete: 3,
+      mission_complete: 2,
       date: '2025-07-15',
       daily_emotion: null,
     },

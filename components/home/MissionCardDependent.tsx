@@ -5,6 +5,7 @@ import {
   TouchableOpacity,View,} from 'react-native';
 //라이브러리
 import ImageViewer from 'react-native-image-zoom-viewer';
+import { useRouter } from "expo-router";
 //하위 컴포넌트
 import MissionConfirmModal from './MissionConfirmModal';
 
@@ -48,6 +49,7 @@ export default function MissionCard(props: Props) {
   const [visible, setImageVisible] = useState(false); //사진
   const [index, setIndex] = useState(0); //사진 모달
   const [isModalVisible, setModalVisible] = useState(false); //미션 완료 모달
+  const router = useRouter();
 
   const toggleOpen = () => {
     //애니메이션 자동 적용 함수, 부드럽게 펼쳐지고 접히는
@@ -167,7 +169,8 @@ export default function MissionCard(props: Props) {
                     <Text style={styles.buttonText}>{renderButtonText()}</Text>
                   </TouchableOpacity>
                   {/*켈퍼 버튼*/}
-                  <TouchableOpacity style={styles.questionIconButton}>
+                  <TouchableOpacity style={styles.questionIconButton} 
+                  onPress={() => router.push('/kelper')}>
                     <QuestionIcon width={40} height={40} />
                   </TouchableOpacity>
                 </View>
@@ -208,12 +211,10 @@ export default function MissionCard(props: Props) {
 
 const styles = StyleSheet.create({
   cardWrapper: {
-    //가장 상위 프레임
-    marginVertical: 6, //상하여백
-    paddingHorizontal: 16, //좌우여백
+    marginVertical: 6,
+    paddingHorizontal: 16,
   },
   card: {
-    //두번째 프레임
     backgroundColor: Colors.gray0,
     borderRadius: 12,
     padding: 16,
@@ -223,8 +224,8 @@ const styles = StyleSheet.create({
   cardCompleted: {
     borderColor: Colors.main600,
   },
+  //close 상태일 때 프레임
   topRow: {
-    //close 상태일때의 프레임
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -263,7 +264,6 @@ const styles = StyleSheet.create({
   photoBox: {
     width: 60,
     height: 60,
-    //borderRadius: 6,
   }, //상세설명 프레임 끝
   actionRow: {
     flexDirection: 'row',
@@ -273,9 +273,9 @@ const styles = StyleSheet.create({
   actionButton: {
     backgroundColor: Colors.main600,
     borderRadius: 8,
-    paddingVertical: 8, //상하여백
-    paddingHorizontal: 12, //좌우여백
-    alignSelf: 'flex-start', //부모 뷰 안에서 왼쪽 정렬
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start', 
   },
   buttonText: {
     ...Typo.label01,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   questionIconButton: {},
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(97, 97, 97, 0.95)', //임의로 색 지정
+    backgroundColor: 'rgba(97, 97, 97, 0.95)',
   },
   closeButton: {
     position: 'absolute',
