@@ -11,8 +11,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  type KeyboardEvent, type KeyboardEventName
 } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 //데이터 타입
 import { Message } from '@/types/message';
@@ -36,92 +38,88 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const BOX_H = 48;
 
 const Kelper = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: '안녕하세요, 효원님!\n오늘은 무엇을 도와드릴까요?',
-      sender: 'ai',
-      timestamp: '00:00',
-    },
-    {
-      id: '2',
-      text: '할 일 : 세탁기돌리기\n\n상세내용\n세탁기 전원버튼을 킨다.\n세제를 넣는다\n삼유유연제를 넣는다\n표준세탁을 다이얼을 돌려서 선택한다.\n시작버튼을 선택한다\n세탁기가 잘 돌아가고 있는지 확인한다.',
-      sender: 'ai',
-      timestamp: '00:00',
-    },
-  ]);
-  
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+
+  //미션별 라우트 파라미터
+  const { missionId, title, detail } = useLocalSearchParams<{
+    missionId: string; title?: string; detail?: string;
+  }>();
+  //채팅방 입장 시각 (고정)
+  const entryTimeRef = useRef<Date>(new Date());
+  const formatClock = (d: Date) => d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false); //사용자 음성 녹음
   const [isPaused, setIsPaused] = useState(false);   //녹음 일시정지 여부
   const [elapsed, setElapsed] = useState(0);  //녹음 시간
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef<FlatList<Message>>(null);
-  const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
-
   
+  //missionId 마다 새로운 켈퍼 채팅방
+  useEffect(() => {
+    entryTimeRef.current = new Date();
+    const t = formatClock(entryTimeRef.current);
+    setMessages([
+      {
+        id: `welcome-${missionId}-${Date.now()}`,
+        text: '안녕하세요, 효원님!\n무엇을 도와드릴까요?',
+        sender: 'ai',
+        timestamp: t,
+      },
+      {
+        id: `task-${missionId}-${Date.now()+1}`,
+        text: `할 일 : ${title ?? '제목 없음'}\n\n상세내용\n${detail ?? '상세내용 없음'}`,
+        sender: 'ai',
+        timestamp: t,
+      },
+    ]);
+  }, [missionId, title, detail]);
+
   // 키보드 이벤트 리스너 추가
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        // 키보드가 올라올 때 스크롤을 맨 아래로
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-      }
-    );
-    
-    const keyboardDidHideListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidHide' : 'keyboardWillHide',
-      () => {
-        setKeyboardHeight(0);
-      }
-    );
+    const showEvt: KeyboardEventName =
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt: KeyboardEventName =
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const onShow = (e: KeyboardEvent) => {
+      setKeyboardHeight(e.endCoordinates.height);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+    };
+    const onHide = () => setKeyboardHeight(0);
+
+    const showSub = Keyboard.addListener(showEvt, onShow);
+    const hideSub = Keyboard.addListener(hideEvt, onHide);
 
     return () => {
-      keyboardDidShowListener?.remove();
-      keyboardDidHideListener?.remove();
+      showSub.remove();
+      hideSub.remove();
     };
   }, []);
 
   // 새 메시지 전송
-  // 새 메시지 전송
   const sendMessage = () => {
-    if (inputText.trim()) {
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        text: inputText.trim(),
+    const text = inputText.trim();
+    if (!text) return;
+    setMessages(prev => [
+      ...prev,
+      {
+        id: String(Date.now()),
+        text,
         sender: 'user',
-        timestamp: new Date().toLocaleTimeString('ko-KR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        }),
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
-      setInputText('');
-      
-      // 스크롤을 맨 아래로
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    }
+        timestamp: formatClock(new Date()),
+      },
+    ]);
+    setInputText('');
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
   //음성 부분
-
   const SEGMENTS = 25; //진행바 구간 개수
   const MAX_SECONDS = 40; //녹음 시간 (임시 40초)
 
-  // 음성 녹음 토글
-  const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    // 실제 음성 인식 로직은 여기에 구현
-  };
   //녹음 시간 측정
   useEffect(() => {
     if (!isRecording || isPaused) return;
@@ -129,6 +127,7 @@ const Kelper = () => {
     return () => clearInterval(t);
   }, [isRecording, isPaused]);
 
+  //시간 표현
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60).toString().padStart(2, '0');
     const s = (sec % 60).toString().padStart(2, '0');
@@ -147,7 +146,7 @@ const Kelper = () => {
     setIsPaused(false);
     setElapsed(0);
   };
-  // “보내기” 버튼 (UI만)
+  // "보내기" 버튼 (UI만)
   const sendVoiceMock = () => {
     // 여기서 백엔드 전송/실제 파일 연결 예정
     resetRecording();
@@ -170,7 +169,6 @@ const Kelper = () => {
             {item.text}
           </Text>
         </View>
-        
         <Text style={styles.timestamp}>{item.timestamp}</Text>
       </View>
     );
@@ -344,9 +342,13 @@ const styles = StyleSheet.create({
   aiMessageContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap:4,
   },
   userMessageContainer: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'flex-start',
     alignItems: 'flex-end',
+    gap:4,
   },
   
   // AI 프로필 스타일

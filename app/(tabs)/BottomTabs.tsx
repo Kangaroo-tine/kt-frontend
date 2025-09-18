@@ -60,7 +60,7 @@ export default function BottomTabs() {
     >
       <Tab.Screen
         name="Home"
-        component={ParentHome}
+        component={DependentHome}
         options={{
           headerTitle: () => <View />,
           headerLeft: () => (

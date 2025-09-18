@@ -48,7 +48,8 @@ export default function MissionCard(props: Props) {
   const [isOpen, setIsOpen] = useState(false); //미션카드 터치
   const [visible, setImageVisible] = useState(false); //사진
   const [index, setIndex] = useState(0); //사진 모달
-  const [isModalVisible, setModalVisible] = useState(false); //미션 완료 모달
+  const [isConfirmModalVisible, setConfirmModalVisible] = useState(false); //미션 완료 모달
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const router = useRouter();
 
   const toggleOpen = () => {
@@ -77,9 +78,18 @@ export default function MissionCard(props: Props) {
       : '미션완료하러가기';
   };
 
+  const handleCompleteBtnPress = () => {
+    if (props.status !== 'NOT_STARTED') return;
+    if (props.requires_photo) {
+      setPhotoModalVisible(true);
+    } else {
+      setConfirmModalVisible(true);
+    }
+  };
+
   //미완인 미션의 완료 버튼을 눌렀을 때, status 전달 부분
   const handleConfirm = () => {
-    setModalVisible(false);
+    setConfirmModalVisible(false);
     props.onComplete(); // 상위에서 status를 COMPLETED로 업데이트
   };
 
@@ -163,22 +173,30 @@ export default function MissionCard(props: Props) {
                   {/*완료 버튼*/}
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => setModalVisible(true)}
+                    onPress={handleCompleteBtnPress}
                     disabled={props.status !== 'NOT_STARTED'}
                   >
                     <Text style={styles.buttonText}>{renderButtonText()}</Text>
                   </TouchableOpacity>
                   {/*켈퍼 버튼*/}
                   <TouchableOpacity style={styles.questionIconButton} 
-                  onPress={() => router.push('/kelper')}>
+                  onPress={() => router.push({
+                    pathname: '/kelper/[missionId]',
+                    params: {
+                      missionId: String(props.id),
+                      title: props.title,              // 할 일 이름
+                      detail: props.description || '', // 상세내용
+                    },
+                  })}
+                  >
                     <QuestionIcon width={40} height={40} />
                   </TouchableOpacity>
                 </View>
               )}
               {/*완료 버튼 터치 시 나오는 모달*/}
               <MissionConfirmModal
-                isVisible={isModalVisible}
-                onCancel={() => setModalVisible(false)} 
+                isVisible={isConfirmModalVisible}
+                onCancel={() => setConfirmModalVisible(false)} 
                 onConfirm={handleConfirm}
                 mission_start_time={props.mission_start_time}
                 title={props.title}

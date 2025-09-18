@@ -1,4 +1,4 @@
-export type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED';
+export type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED' | 'AWAITING_APPROVAL';
 
 export type Mission = {
   id: bigint;
