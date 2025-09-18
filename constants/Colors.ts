@@ -3,7 +3,7 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   // Main Colors
-  main100: '#FFFCC0',
+  main100: '#F5FFCC',
   main200: '#ECFF90',
   main300: '#E0FF66',
   main400: '#DFFF33',

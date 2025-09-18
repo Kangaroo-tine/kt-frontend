@@ -1,4 +1,4 @@
-export type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED';
+export type MissionStatus = 'NOT_STARTED' | 'COMPLETED' | 'FAILED' | 'AWAITING_APPROVAL';
 
 export type Mission = {
   id: bigint;
@@ -9,4 +9,5 @@ export type Mission = {
   mission_start_time: string;
   mission_end_time: string;
   status: MissionStatus;
+  location?: { lat: number; lng: number };
 };

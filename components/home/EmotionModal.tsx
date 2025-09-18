@@ -184,7 +184,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   emotionSelectBox: {
-    //감정 선택 박스 "선택해 주세요"
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -207,7 +206,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     height: 42,
     width: 114,
-    borderWidth: 1, //테두리
+    borderWidth: 1,
     borderColor: Colors.gray200,
     borderRadius: 10,
     alignItems: 'center',
