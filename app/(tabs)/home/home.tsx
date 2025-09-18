@@ -13,7 +13,7 @@ import { Mission, MissionStatus } from '@/types/mission';
 import { Header, EmotionType } from '@/types/homeHeader';
 
 //dependent 홈 구현
-export default function DependentHome() {
+export default function Home() {
   //헤더 임의 데이터 값
   const header: Header[] = [
     {

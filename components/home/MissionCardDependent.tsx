@@ -181,7 +181,7 @@ export default function MissionCard(props: Props) {
                   {/*켈퍼 버튼*/}
                   <TouchableOpacity style={styles.questionIconButton} 
                   onPress={() => router.push({
-                    pathname: '/kelper/[missionId]',
+                    pathname: '/kelper/[missionId]', 
                     params: {
                       missionId: String(props.id),
                       title: props.title,              // 할 일 이름

@@ -38,44 +38,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const BOX_H = 48;
 
 const Kelper = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
-
-  //미션별 라우트 파라미터
-  const { missionId, title, detail } = useLocalSearchParams<{
-    missionId: string; title?: string; detail?: string;
-  }>();
-  //채팅방 입장 시각 (고정)
-  const entryTimeRef = useRef<Date>(new Date());
-  const formatClock = (d: Date) => d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
-
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false); //사용자 음성 녹음
   const [isPaused, setIsPaused] = useState(false);   //녹음 일시정지 여부
   const [elapsed, setElapsed] = useState(0);  //녹음 시간
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+
   const flatListRef = useRef<FlatList<Message>>(null);
-  
-  //missionId 마다 새로운 켈퍼 채팅방
-  useEffect(() => {
-    entryTimeRef.current = new Date();
-    const t = formatClock(entryTimeRef.current);
-    setMessages([
-      {
-        id: `welcome-${missionId}-${Date.now()}`,
-        text: '안녕하세요, 효원님!\n무엇을 도와드릴까요?',
-        sender: 'ai',
-        timestamp: t,
-      },
-      {
-        id: `task-${missionId}-${Date.now()+1}`,
-        text: `할 일 : ${title ?? '제목 없음'}\n\n상세내용\n${detail ?? '상세내용 없음'}`,
-        sender: 'ai',
-        timestamp: t,
-      },
-    ]);
-  }, [missionId, title, detail]);
+
+  //시간 포맷
+  const formatClock = (d: Date) => 
+    d.toLocaleTimeString('ko-KR', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false 
+    });
 
   // 키보드 이벤트 리스너 추가
   useEffect(() => {
@@ -157,7 +138,8 @@ const Kelper = () => {
     const isAI = item.sender === 'ai';
     
     return (
-      <View style={[styles.messageContainer, isAI ? styles.aiMessageContainer : styles.userMessageContainer]}>
+      <View style={[styles.messageContainer, 
+        isAI ? styles.aiMessageContainer : styles.userMessageContainer]}>
         {isAI && (
           <View style={styles.aiProfileContainer}>
             <AiProfileIcon width={43} height={37} />
@@ -180,7 +162,7 @@ const Kelper = () => {
       
       {/* 헤더 */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={()=>navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={()=>router.back()}>
           <BackIcon width={24} height={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>AI Kelper</Text>
