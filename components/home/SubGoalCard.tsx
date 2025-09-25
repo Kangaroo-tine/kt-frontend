@@ -55,7 +55,7 @@ export default function StepCard({ step, title, active = false, onPress }: StepC
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
