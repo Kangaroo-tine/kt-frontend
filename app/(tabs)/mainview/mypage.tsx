@@ -1,21 +1,21 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { SvgProps } from "react-native-svg";
-
-import { useRouter } from "expo-router";
-
+//아이콘
+import NextArrow from '@/assets/icon/arrow/next_arrow.svg';
+import AlarmIcon from '@/assets/icon/blackline_icon/alarm.svg';
+import AtIcon from '@/assets/icon/blackline_icon/at.svg';
+import BookIcon from '@/assets/icon/blackline_icon/book.svg';
+import MegaphoneIcon from '@/assets/icon/blackline_icon/megaphone.svg';
+//세부 메뉴 아이콘
+import PortraitIcon from '@/assets/icon/blackline_icon/portrait.svg';
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
 
-//아이콘
-import NextArrow from '@/assets/icon/arrow/next_arrow.svg';
-//세부 메뉴 아이콘
-import PortraitIcon from '@/assets/icon/blackline_icon/portrait.svg';
-import AtIcon from '@/assets/icon/blackline_icon/at.svg';
-import AlarmIcon from '@/assets/icon/blackline_icon/alarm.svg';
-import MegaphoneIcon from '@/assets/icon/blackline_icon/megaphone.svg';
-import BookIcon from '@/assets/icon/blackline_icon/book.svg';
+import React from 'react';
+
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+import { useRouter } from 'expo-router';
+import { SvgProps } from 'react-native-svg';
 
 type MenuItemProps = {
   icon: React.FC<SvgProps>;
@@ -26,18 +26,18 @@ type MenuItemProps = {
 const MenuItem = ({ icon: Icon, label, onPress }: MenuItemProps) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={styles.menuLeft}>
-      <Icon width={14} height={14} style={{ marginRight: 12 }} />
+      <Icon width={14} height={14} style={{ marginRight: 5 }} />
       <Text style={styles.menuLabel}>{label}</Text>
     </View>
-    <NextArrow width={24} height={24} />
+    <NextArrow width={15} height={15} />
   </TouchableOpacity>
 );
 
-//dependent 마이페이지 구현 
+//dependent 마이페이지 구현
 const MyPage = () => {
   const router = useRouter();
-  const userName = "장효원";
-  const userEmail = "emailaddress@email.com"
+  const userName = '장효원';
+  const userEmail = 'emailaddress@email.com';
 
   //가장 바깥을 SafeAreaView로 감쌀지 고민 중. 일단 테스트 해보고 비교해보자.
   return (
@@ -52,12 +52,17 @@ const MyPage = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>MY</Text>
         <View style={styles.box}>
-          <MenuItem icon={PortraitIcon} label="프로필 수정"
-            onPress={() => router.push("../mypages/profile/edit")}/>
-          <MenuItem icon={AtIcon} label="계정 관리" 
-            onPress={() => router.push("../mypages/account/manage")} />
-          <MenuItem icon={AlarmIcon} label="푸시 알림 동의" 
-            onPress={() => router.push("../mypages/notification/settings")}/>
+          <MenuItem
+            icon={PortraitIcon}
+            label="프로필 수정"
+            onPress={() => router.push('../mypages/profile/edit')}
+          />
+          <MenuItem icon={AtIcon} label="계정 관리" onPress={() => {}} />
+          <MenuItem
+            icon={AlarmIcon}
+            label="푸시 알림 동의"
+            onPress={() => {}}
+          />
         </View>
       </View>
       {/* 지원 섹션 */}
@@ -65,8 +70,11 @@ const MyPage = () => {
         <Text style={styles.sectionTitle}>지원</Text>
         <View style={styles.box}>
           <MenuItem icon={MegaphoneIcon} label="문의하기" />
-          <MenuItem icon={BookIcon} label="서비스 이용 약관" 
-            onPress={() => router.push("../mypages/terms")}/>
+          <MenuItem
+            icon={BookIcon}
+            label="서비스 이용 약관"
+            onPress={() => {}}
+          />
           <MenuItem icon={BookIcon} label="개인정보 처리방침" />
         </View>
       </View>
@@ -75,35 +83,35 @@ const MyPage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     paddingHorizontal: 12,
   },
   profileCard: {
-    alignItems: "center",
-    backgroundColor: "#fff",
+    alignItems: 'center',
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: Colors.gray200,
     borderRadius: 12,
     paddingTop: 32,
-    paddingBottom: 20 ,
+    paddingBottom: 20,
     marginBottom: 20,
   },
   box: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: Colors.gray200,
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 20, 
+    paddingHorizontal: 20,
     gap: 12,
   },
   profileImage: {
     width: 56,
     height: 56,
     borderRadius: 12,
-    backgroundColor: "#D9D9D9",
+    backgroundColor: '#D9D9D9',
     marginBottom: 16,
   },
   profileName: {
@@ -126,13 +134,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 5,
   },
   menuLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
   menuLabel: {
@@ -140,5 +149,5 @@ const styles = StyleSheet.create({
     color: Colors.gray900,
   },
 });
- 
+
 export default MyPage;
