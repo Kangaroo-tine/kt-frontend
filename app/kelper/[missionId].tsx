@@ -298,7 +298,6 @@ const Kelper = () => {
               </View>
             )}
           </View>
-
         </KeyboardAvoidingView>
       </View>
     </View>
@@ -310,7 +309,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
   },
-  
   // 헤더 스타일
   header: {
     flexDirection: 'row',
