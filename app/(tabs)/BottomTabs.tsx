@@ -24,9 +24,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //Dependent - 일단 대상자 화면만 뜨도록 설정해놓음 - 분기는 나중에 구현
 import DependentCalendar from './dependent/calendar';
-import Loading from './home/loading';
-import Home from './home/home';
-import MyPage from './home/mypage';
+import Loading from './mainview/loading';
+import Home from './mainview/home';
+import MyPage from './mainview/mypage';
 //각 화면 임포트 - Parent
 import ParentCalendar from './parent/calendar';
 import ParentEmotion from './parent/emotion';
