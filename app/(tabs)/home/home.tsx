@@ -1,119 +1,192 @@
 import React , { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { View,  Text, ScrollView, FlatList, StyleSheet } from 'react-native';
+
+//아이콘
+import HomeDependentIcon from '@/assets/GUI/home_dependent.svg';
 
 //하위 컴포넌트
-import MissionCard from '@/components/home/MissionCardDependent';
-import MissionHeader from '@/components/home/MissionHeader';
+import MainGoalCard from '@/components/home/MainGoalCard';
+import StepCard from '@/components/home/SubGoalCard';
 
-//컬러
+//폰트, 컬러
+import { Typo } from '@/constants/Typo';
 import { Colors } from '@/constants/Colors';
 
 //미션 리스트 타입 포맷
 import { Mission, MissionStatus } from '@/types/mission';
 import { Header, EmotionType } from '@/types/homeHeader';
 
+//임의 메인골, 서브골 데이터
+const mockData = [
+  {
+    id: "main-1",
+    category: "health",
+    title: "수영 잘하기",
+    subGoals: [
+      { id: "sub-1-1", step: 1, title: "수영장 등록하기", completed: true },
+      { id: "sub-1-2", step: 2, title: "준비물 챙기기", completed: false },
+      { id: "sub-1-3", step: 3, title: "주 3회 수영하기", completed: false },
+      { id: "sub-1-4", step: 4, title: "자유형 마스터", completed: false },
+    ],
+  },
+  {
+    id: "main-2",
+    category: "study",
+    title: "자격증 따기",
+    subGoals: [
+      { id: "sub-2-1", step: 1, title: "교재 구입하기", completed: false },
+      { id: "sub-2-2", step: 2, title: "1장 끝내기", completed: false },
+    ],
+  },
+  {
+    id: "main-3",
+    category: "hobby",
+    title: "자격증 따기",
+    subGoals: [
+      { id: "sub-3-1", step: 1, title: "교재 구입하기", completed: false },
+      { id: "sub-3-2", step: 2, title: "1장 끝내기", completed: false },
+    ],
+  },
+  {
+    id: "main-4",
+    category: "task",
+    title: "자격증 따기",
+    subGoals: [
+      { id: "sub-4-1", step: 1, title: "교재 구입하기", completed: false },
+      { id: "sub-4-2", step: 2, title: "1장 끝내기", completed: false },
+    ],
+  },
+  {
+    id: "main-5",
+    category: "people",
+    title: "자격증 따기",
+    subGoals: [
+      { id: "sub-5-1", step: 1, title: "교재 구입하기", completed: false },
+      { id: "sub-5-2", step: 2, title: "1장 끝내기", completed: false },
+    ],
+  },
+];
+
 //dependent 홈 구현
 export default function Home() {
-  //헤더 임의 데이터 값
-  const header: Header[] = [
-    {
-      userName: '장효원',
-      mission_count: 3,
-      mission_complete: 2,
-      date: '2025-07-15',
-      daily_emotion: null,
-    },
-  ];
+  const userName = "장효원";  //임의 사용자 이름
 
-  //미션 임의 데이터 값
-  const missionList: Mission[] = [
-    {
-      id: BigInt(1),
-      title: '마트가기',
-      description:
-        '마트가기의 상세설명입니다. 마트가기의 상세설명입니다. 마트가기의 상세설명입니다. 마트가기의 상세설명입니다. 마트가기의 상세설명입니다. ',
-      requires_photo: true,
-      mission_start_time: '9:00',
-      mission_end_time: '10:00',
-      status: 'COMPLETED',
-    },
-    {
-      id: BigInt(2),
-      title: '집 청소하기',
-      description:
-        '집 청소하기의 상세설명입니다. 집 청소하기의 상세설명입니다. 집 청소하기의 상세설명입니다. 집 청소하기의 상세설명입니다. 집 청소하기의 상세설명입니다. 집 청소하기의 상세설명입니다. ',
-      description_photo: true,
-      requires_photo: false,
-      mission_start_time: '10:00',
-      mission_end_time: '11:00',
-      status: 'FAILED',
-    },
-    {
-      id: BigInt(3),
-      title: '공부하기',
-      description: '공부하기의 상세설명입니다.',
-      requires_photo: true,
-      mission_start_time: '15:00',
-      mission_end_time: '18:00',
-      status: 'NOT_STARTED',
-    },
-  ];
+  const [mainGoals, setMainGoals] = useState(mockData);
+  const [selectedId, setSelectedId] = useState<string>(mockData[0].id);
 
-  //미션 상태 업데이트 (미완 => 완료), id를 기준으로 상태 업데이트
-  const [missionState, setMissionState] = useState(missionList);
-  const handleComplete = (id: bigint) => {
-    setMissionState(prev =>
-      prev.map(mission =>
-        mission.id === id ? { ...mission, status: 'COMPLETED' } : mission
-      )
-    );
-  };
+  const selectedGoal = mainGoals.find((g) => g.id === selectedId);
 
-  //daliy감정 상태 업데이트, date를 기준으로 감정을 업데이트
-  const [emotionState, setEmotionState] = useState(header);
-  const handleDaliyEmotion = (date: string, emotion: EmotionType) => {
-    setEmotionState((prev) =>
-      prev.map((header) =>
-        header.date === date ? { ...header, daily_emotion: emotion } : header
+  // 서브골 체크박스
+  const toggleSubGoal = (goalId: string, subGoalId: string) => {
+    setMainGoals((prev) =>
+      prev.map((goal) =>
+        goal.id === goalId
+          ? {
+              ...goal,
+              subGoals: goal.subGoals.map((sg) =>
+                sg.id === subGoalId ? { ...sg, completed: !sg.completed } : sg
+              ),
+            }
+          : goal
       )
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* 상단 고정 MissionHeader */}
-      <View style={styles.header}>
-        <MissionHeader
-          {...emotionState[0]}
-          daliyEmotionSelected={(emotion) => handleDaliyEmotion(emotionState[0].date, emotion)}
-        />
+      {/* 인사 + 캐릭터 */}
+      <View style={styles.topRow}>
+        <View>
+          <Text style={styles.name}>{userName}님!</Text>
+          <Text style={styles.subtitle}>오늘롤ㅇ롱{"\n"}미션하러 가볼까요?</Text>
+        </View>
+        <HomeDependentIcon width={120} height={120} />
       </View>
 
-      {/* 하단 미션 카드 스크롤 영역 */}
-      <ScrollView contentContainerStyle={styles.scrollArea}>
-        {missionState.map((mission) => (
-          <MissionCard
-            key={mission.id.toString()}
-            {...mission}
-            onComplete={() => handleComplete(mission.id)}
-          />
-        ))}
-      </ScrollView>
+      <View style={{ height: 96 + 24 }}>
+        {/* 메인골 카드 리스트 */}
+        <FlatList
+          horizontal
+          data={mainGoals}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <MainGoalCard
+              title={item.title}
+              category={item.category as any}
+              completed={item.subGoals.filter((s) => s.completed).length}
+              total={item.subGoals.length}
+              selected={selectedId === item.id}
+              onPress={() => setSelectedId(item.id)}
+            />
+          )}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 20 }}
+        />
+      </View>
+      
+      {/* 회색 영역 */}
+      <View style={styles.subGoalSection}>
+        {/* 선택된 메인골 제목 */}
+        <Text style={styles.selectedMainGoalTitle}>{selectedGoal?.title}</Text>
+
+        {/* 서브골 카드 리스트 (세로 스크롤) */}
+        <FlatList
+          data={selectedGoal?.subGoals || []}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <StepCard
+              step={item.step}
+              title={item.title}
+              active={true}
+              onPress={() => toggleSubGoal(selectedGoal!.id, item.id)}
+            />
+          )}
+          contentContainerStyle={styles.subGoalContainer}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // 최상위 프레임
-  container: {
+  container: { flex: 1, backgroundColor: '#fff',
+   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    marginTop: 16,
+  },
+  name: {
+    ...Typo.title03,
+    color: Colors.main700,
+  },
+  subtitle: {
+    marginTop: 12,
+    ...Typo.heading01,
+    color: '#000',
+    lineHeight: 24,
+  },
+  subGoalSection: {
     flex: 1,
-    backgroundColor: Colors.gray100, 
-  },//헤더 영역
-  header: {
-    backgroundColor: Colors.gray0, 
-  },//미션 카드 영역
-  scrollArea: {
-    paddingVertical: 12,
-    paddingHorizontal: 7, 
+    backgroundColor: Colors.gray100, // 회색 배경
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    
+    paddingTop: 16,
+  },
+  selectedMainGoalTitle: {
+    marginBottom: 15,
+    marginLeft: 16,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  subGoalContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
 });
