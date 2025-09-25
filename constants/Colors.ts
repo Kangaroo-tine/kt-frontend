@@ -38,4 +38,5 @@ export const Colors = {
   // Etc
   dim: '#C0C0C0',
   error: '#FF5854',
+  sub500: '#1A1B41',
 };
