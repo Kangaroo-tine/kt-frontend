@@ -11,7 +11,7 @@ const MyPage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { 
     flex: 1,
     backgroundColor: '#ffffff', 
     justifyContent: 'center',
@@ -22,5 +22,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
 });
-
+ 
 export default MyPage;
