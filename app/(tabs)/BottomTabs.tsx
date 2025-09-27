@@ -1,19 +1,20 @@
 // BottomTabs.tsx
-import Logo from '@/assets/GUI/logo/logo_dark.svg';
+import React from 'react';
+
 //아이콘
 import {
   CalendarIcon,
-  EmotionIcon,
+  KelperIcon,
   HomeIcon,
   MyPageIcon,
 } from '@/components/icon/bottombar';
+import Logo from '@/assets/GUI/logo/logo_dark.svg';
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
 //px에서 화면 비율에 맞는 크기로 변환해주는 유틸
 import { responsiveH, responsiveW } from '@/scripts/utils/responsive';
 
-import React from 'react';
 
 import { Text, View } from 'react-native';
 
@@ -21,11 +22,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 //화면 아래 handle부분 처리
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import DependentCalendar from './dependent/calendar';
-import DependentEmotion from './dependent/emotion';
 //Dependent - 일단 대상자 화면만 뜨도록 설정해놓음 - 분기는 나중에 구현
-import DependentHome from './dependent/home';
-import DependentMyPage from './dependent/mypage';
+import DependentCalendar from './dependent/calendar';
+import Loading from './mainview/loading';
+import Home from './mainview/home';
+import MyPage from './mainview/mypage';
 //각 화면 임포트 - Parent
 import ParentCalendar from './parent/calendar';
 import ParentEmotion from './parent/emotion';
@@ -59,9 +60,9 @@ export default function BottomTabs() {
     >
       <Tab.Screen
         name="Home"
-        component={DependentHome}
+        component={Home}
         options={{
-          headerTitle: () => <></>,
+          headerTitle: () => <View />,
           headerLeft: () => (
             <View style={{ paddingLeft: 12 }}>
               <Logo width={responsiveW(80)} height={responsiveH(20)} />
@@ -114,8 +115,8 @@ export default function BottomTabs() {
         }}
       />
       <Tab.Screen
-        name="Emotion"
-        component={DependentEmotion}
+        name="AIKelper"
+        component={Loading}
         options={{
           headerTitle: () => (
             <View
@@ -126,12 +127,12 @@ export default function BottomTabs() {
               }}
             >
               <Text style={{ ...Typo.heading04, color: Colors.gray800 }}>
-                감정기록
+                AI 켈퍼
               </Text>
             </View>
           ),
           tabBarIcon: ({ focused }) => (
-            <EmotionIcon
+            <KelperIcon
               color={focused ? Colors.main700 : Colors.gray300}
               width={24}
               height={24}
@@ -144,14 +145,14 @@ export default function BottomTabs() {
                 { color: focused ? Colors.main700 : Colors.gray300 },
               ]}
             >
-              감정기록
+              AI 켈퍼
             </Text>
           ),
         }}
       />
       <Tab.Screen
         name="MyPage"
-        component={DependentMyPage}
+        component={MyPage}
         options={{
           headerTitle: () => (
             <View
