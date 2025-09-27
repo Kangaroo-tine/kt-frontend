@@ -1,12 +1,7 @@
 // onboarding/complete.tsx (마지막 단계)
-import * as React from 'react';
-import { useState } from 'react';
-
-import { Button } from 'react-native';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -19,8 +14,6 @@ import { Typo } from '../../constants/Typo';
 
 export default function CompleteScreen() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const isActive = true;
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backButtonWrapper}>
@@ -33,33 +26,44 @@ export default function CompleteScreen() {
         <Done width={180} height={230} />
         <View style={{ height: 40 }} />
         <View style={{ alignItems: 'center' }}>
-          <Text style={[Typo.title02, { color: Colors.gray900 }]}>
-            계정 연동이 완료되었어요!
+          <Text
+            style={[
+              Typo.title02,
+              { color: Colors.gray900, textAlign: 'center' },
+            ]}
+          >
+            캥거루틴과 함께 {'\n'}차근차근 실천해봐요
           </Text>
         </View>
         <View style={styles.subtitleWrapper}>
           <Text style={[Typo.label02, { color: Colors.gray500 }]}>
-            보호자가 등록한 루틴을 확인해 보세요
+            캥거루틴이 당신의 여정을 함께 응원할게요!
           </Text>
         </View>
       </View>
 
-      <TouchableOpacity
-        style={styles.bottomButtonWrapper}
-        disabled={!isActive}
-        onPress={() => router.push('/(tabs)/BottomTabs')}
-      >
-        <View
+      <View style={styles.bottomButtonWrapper}>
+        <TouchableOpacity
           style={[
-            styles.button,
-            { backgroundColor: isActive ? Colors.main600 : Colors.gray100 },
+            styles.buttonHalf,
+            { backgroundColor: Colors.gray100, marginRight: 8 },
           ]}
+          onPress={() => router.push('/(tabs)/BottomTabs')}
         >
           <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
-            시작하기
+            홈으로 가기
           </Text>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.buttonHalf, { backgroundColor: Colors.main600 }]}
+          onPress={() => router.push('/(tabs)/BottomTabs')}
+        >
+          <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
+            일정 추가히기
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -84,10 +88,20 @@ const styles = StyleSheet.create({
     bottom: '5%',
     left: 0,
     right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   button: {
     width: 336,
+    height: 60,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonHalf: {
+    flex: 1,
     height: 60,
     borderRadius: 12,
     justifyContent: 'center',
@@ -98,16 +112,5 @@ const styles = StyleSheet.create({
     bottom: '10%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  inputWrapper: {
-    marginHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray300,
-  },
-  input: {
-    ...Typo.body02,
-    color: Colors.gray900,
-    paddingHorizontal: 6,
-    paddingVertical: 16,
   },
 });

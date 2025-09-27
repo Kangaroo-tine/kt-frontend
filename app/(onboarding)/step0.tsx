@@ -7,9 +7,9 @@ import { TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Logo from '../../assets/GUI/delete_account_dependent.svg';
 //아이콘
 import KaKao from '../../assets/GUI/kakao.svg';
+import Logo from '../../assets/GUI/logo/logo_light.svg';
 //컬러
 import { Colors } from '../../constants/Colors';
 
@@ -18,13 +18,13 @@ export default function ScreenStart() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.logoWrapper}>
-        <Logo width={260} height={260} />
+        <Logo width={224} height={100} />
       </View>
       <TouchableOpacity
         style={styles.kakaoWrapper}
-        onPress={() => router.push('/step1_role')}
+        onPress={() => router.push('/step1')}
       >
-        <KaKao width={335} height={50} />
+        <KaKao />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -37,16 +37,18 @@ const styles = StyleSheet.create({
   },
   logoWrapper: {
     position: 'absolute',
-    top: '30%',
+    top: '40%',
     left: 0,
     right: 0,
     alignItems: 'center',
   },
   kakaoWrapper: {
     position: 'absolute',
-    bottom: '25%',
-    left: 0,
-    right: 0,
+    bottom: '30%',
     alignItems: 'center',
+    borderRadius: 12,
+    overflow: 'hidden',
+    width: 183,
+    alignSelf: 'center',
   },
 });
