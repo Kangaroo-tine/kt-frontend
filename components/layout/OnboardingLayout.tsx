@@ -76,5 +76,6 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     paddingTop: 10,
+    paddingBottom: 90,
   },
 });
