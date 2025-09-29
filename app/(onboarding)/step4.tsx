@@ -1,4 +1,3 @@
-// app/(onboarding)/start.tsx
 import { useState } from 'react';
 
 import {
@@ -9,24 +8,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import PenIcon from '../../assets/icon/pen.svg';
 import StarIcon from '../../assets/icon/star.svg';
 import XIcon from '../../assets/icon/x.svg';
-//컴포넌트
-import Header from '../../components/Header';
-import ProgressBar from '../../components/ProgressBar';
-//폰트, 컬러
+import OnboardingLayout from '../../components/layout/OnboardingLayout';
+import StepButton from '../../components/shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
@@ -75,29 +65,17 @@ export default function ScreenCode() {
   ];
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView style={styles.container}>
-          <Header title="STEP 3 목록화" />
-          <View style={styles.titleWrapper}>
-            <Text style={[Typo.title03, { color: Colors.gray900 }]}>
-              이제 Main Goal을{'\n'}작은 단계들로 나누어 볼까요?
-            </Text>
-          </View>
-          <ProgressBar progress={0.5} />
-          <View style={styles.subtitleWrapper}>
-            <Text style={[Typo.label02, { color: Colors.gray500 }]}>
-              작은 성공을 하나씩 쌓아가면 큰 목표도 더 쉽게 달성할 수 있어요!
-            </Text>
-          </View>
-
-          <ScrollView
-            style={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-          >
+    <>
+      <OnboardingLayout
+        title="STEP 3 목록화"
+        mainTitle={'이제 Main Goal을\n작은 단계들로 나누어 볼까요?'}
+        subtitle="작은 성공을 하나씩 쌓아가면 큰 목표도 더 쉽게 달성할 수 있어요!"
+        progress={0.6}
+      >
+      <ScrollView
+        style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
             <View style={styles.labelContainer}>
               <View style={styles.labelBox}>
                 <Text style={styles.labelText}>Main Goal</Text>
@@ -237,62 +215,27 @@ export default function ScreenCode() {
               ))}
             </View>
           </ScrollView>
+      </OnboardingLayout>
 
-          <TouchableOpacity
-            style={styles.bottomButtonWrapper}
-            disabled={!isNextButtonActive}
-            onPress={() => {
-              const allSelectedGoals = [...selectedSubGoals, ...userAddedGoals];
-              router.push(
-                `/step5?mainGoal=${encodeURIComponent(
-                  (mainGoal as string) || '',
-                )}&subGoals=${encodeURIComponent(
-                  JSON.stringify(allSelectedGoals),
-                )}`,
-              );
-            }}
-          >
-            <View
-              style={[
-                styles.button,
-                {
-                  backgroundColor: isNextButtonActive
-                    ? Colors.main500
-                    : Colors.gray100,
-                },
-              ]}
-            >
-              <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
-                다음
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      <StepButton
+        text="다음"
+        onPress={() => {
+          const allSelectedGoals = [...selectedSubGoals, ...userAddedGoals];
+          router.push(
+            `/step5?mainGoal=${encodeURIComponent(
+              (mainGoal as string) || '',
+            )}&subGoals=${encodeURIComponent(
+              JSON.stringify(allSelectedGoals),
+            )}`,
+          );
+        }}
+        disabled={!isNextButtonActive}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.gray0,
-  },
-  backButtonWrapper: {
-    width: '100%',
-    height: 24,
-    padding: 20,
-  },
-  titleWrapper: {
-    height: '10%',
-    paddingHorizontal: 20,
-    justifyContent: 'flex-end',
-    marginBottom: 15,
-  },
-  subtitleWrapper: {
-    marginTop: 8,
-    paddingHorizontal: 20,
-  },
   labelContainer: {
     marginTop: 20,
     marginLeft: 16,
@@ -320,7 +263,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    marginBottom: 80,
+    paddingBottom: 10,
   },
   listContainer: {
     marginTop: 16,
@@ -368,45 +311,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-  },
-  categoryContainer: {
-    marginTop: 25,
-    paddingHorizontal: 12,
-  },
-  categoryBox: {
-    width: '100%',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    backgroundColor: Colors.gray0,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.gray200,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-  },
-  iconBox: {
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  bottomButtonWrapper: {
-    position: 'absolute',
-    bottom: '5%',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  button: {
-    width: 336,
-    height: 60,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inputWrapper: {
-    marginHorizontal: 20,
-    borderBottomWidth: 1,
   },
 });

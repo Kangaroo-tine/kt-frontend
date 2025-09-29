@@ -1,27 +1,14 @@
-// app/(onboarding)/start.tsx
 import { useState } from 'react';
 
-import { StyleSheet, Text, View } from 'react-native';
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Center_off from '../../assets/GUI/emotion/emotion_off.svg';
 import Center_on from '../../assets/GUI/emotion/emotion_on.svg';
 import FloatingButton from '../../components/FloatingButton';
-//컴포넌트
-import Header from '../../components/Header';
-import ProgressBar from '../../components/ProgressBar';
-//폰트, 컬러
-import { Colors } from '../../constants/Colors';
-import { Typo } from '../../constants/Typo';
+import OnboardingLayout from '../../components/layout/OnboardingLayout';
+import StepButton from '../../components/shared/StepButton';
 
 const labels = [
   '학습·언어',
@@ -47,102 +34,46 @@ export default function ScreenPhone() {
   ];
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView style={styles.container}>
-          <Header title="STEP 1 목표 설정" />
-          <View style={styles.titleWrapper}>
-            <Text style={[Typo.title03, { color: Colors.gray900 }]}>
-              달성하고 싶은 목표의{'\n'}카테고리를 선택해주세요.
-            </Text>
-          </View>
-          <ProgressBar progress={0} />
-          <View style={styles.subtitleWrapper}>
-            <Text style={[Typo.label02, { color: Colors.gray500 }]}>
-              하나의 카테고리를 선택해주세요.
-            </Text>
-          </View>
-          <View style={styles.floatingButtonContainer}>
-            {labels.map((label, index) => (
-              <FloatingButton
-                key={label}
-                label={label}
-                active={selected === label}
-                onPress={() => setSelected(label)}
-                top={buttonData[index].top}
-                left={buttonData[index].left}
-                size={buttonData[index].size}
-              />
-            ))}
-          </View>
-          <View style={{ marginBottom: 20 }}>
-            {selected ? (
-              <Center_on width="100%" />
-            ) : (
-              <Center_off width="100%" />
-            )}
-          </View>
-          <TouchableOpacity
-            style={styles.bottomButtonWrapper}
-            disabled={!selected}
-            onPress={() =>
-              router.push(
-                `/step3?category=${encodeURIComponent(selected || '')}`,
-              )
-            }
-          >
-            <View
-              style={[
-                styles.button,
-                { backgroundColor: selected ? Colors.main500 : Colors.gray100 },
-              ]}
-            >
-              <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
-                다음
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    <>
+      <OnboardingLayout
+        title="STEP 1 목표 설정"
+        mainTitle={'달성하고 싶은 목표의\n카테고리를 선택해주세요.'}
+        subtitle="하나의 카테고리를 선택해주세요."
+        progress={0.2}
+      >
+        <View style={styles.floatingButtonContainer}>
+          {labels.map((label, index) => (
+            <FloatingButton
+              key={label}
+              label={label}
+              active={selected === label}
+              onPress={() => setSelected(label)}
+              top={buttonData[index].top}
+              left={buttonData[index].left}
+              size={buttonData[index].size}
+            />
+          ))}
+        </View>
+        <View style={{ marginBottom: 20 }}>
+          {selected ? <Center_on width="100%" /> : <Center_off width="100%" />}
+        </View>
+      </OnboardingLayout>
+
+      <StepButton
+        text="다음"
+        onPress={() =>
+          router.push(`/step3?category=${encodeURIComponent(selected || '')}`)
+        }
+        disabled={!selected}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.gray0,
-  },
-  titleWrapper: {
-    height: '10%',
-    paddingHorizontal: 20,
-    justifyContent: 'flex-end',
-    marginBottom: 15,
-  },
-  subtitleWrapper: {
-    marginTop: 8,
-    paddingHorizontal: 20,
-  },
   floatingButtonContainer: {
     position: 'relative',
     height: 250,
     marginVertical: 20,
-  },
-  bottomButtonWrapper: {
-    position: 'absolute',
-    bottom: '5%',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  button: {
-    width: 336,
-    height: 60,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

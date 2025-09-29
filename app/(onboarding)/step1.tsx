@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Center from '../../assets/GUI/emotion/emotion_done.svg';
 import Back from '../../assets/icon/arrow/back_arrow.svg';
 import Intro from '../../assets/temp/report.svg';
+import StepButton from '../../components/shared/StepButton';
 //폰트, 컬러
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
@@ -48,16 +49,10 @@ export default function ScreenRole() {
           </TouchableOpacity>
         </View>
         {textIndex === 2 && (
-          <TouchableOpacity
-            style={styles.bottomButtonWrapper}
+          <StepButton
+            text="시작하기"
             onPress={() => router.push('/step2')}
-          >
-            <View style={[styles.button, { backgroundColor: Colors.main500 }]}>
-              <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
-                시작하기
-              </Text>
-            </View>
-          </TouchableOpacity>
+          />
         )}
       </SafeAreaView>
     );
@@ -100,14 +95,10 @@ export default function ScreenRole() {
           </Text>
         </View>
       </View>
-      <TouchableOpacity
-        style={styles.bottomButtonWrapper}
+      <StepButton
+        text="다음"
         onPress={() => setShowIntro(true)}
-      >
-        <View style={[styles.button, { backgroundColor: Colors.main500 }]}>
-          <Text style={[Typo.heading02, { color: Colors.gray800 }]}>다음</Text>
-        </View>
-      </TouchableOpacity>
+      />
     </SafeAreaView>
   );
 }
@@ -140,20 +131,6 @@ const styles = StyleSheet.create({
   introWrapper: {
     flex: 1,
     top: '25%',
-    alignItems: 'center',
-  },
-  bottomButtonWrapper: {
-    position: 'absolute',
-    bottom: '5%',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  button: {
-    width: 336,
-    height: 60,
-    borderRadius: 12,
-    justifyContent: 'center',
     alignItems: 'center',
   },
 });
