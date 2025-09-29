@@ -20,11 +20,6 @@ interface OnboardingLayoutProps {
   subtitle: string;
   progress: number;
   children: React.ReactNode;
-  bottomButton: {
-    text: string;
-    onPress: () => void;
-    disabled?: boolean;
-  };
 }
 
 export default function OnboardingLayout({
@@ -33,7 +28,6 @@ export default function OnboardingLayout({
   subtitle,
   progress,
   children,
-  bottomButton,
 }: OnboardingLayoutProps) {
   return (
     <KeyboardAvoidingView
@@ -58,27 +52,6 @@ export default function OnboardingLayout({
           <View style={styles.contentWrapper}>
             {children}
           </View>
-
-          <TouchableOpacity
-            style={styles.bottomButtonWrapper}
-            disabled={bottomButton.disabled}
-            onPress={bottomButton.onPress}
-          >
-            <View
-              style={[
-                styles.button,
-                {
-                  backgroundColor: bottomButton.disabled
-                    ? Colors.gray100
-                    : Colors.main500,
-                },
-              ]}
-            >
-              <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
-                {bottomButton.text}
-              </Text>
-            </View>
-          </TouchableOpacity>
         </SafeAreaView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -103,20 +76,5 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     paddingTop: 10,
-    marginBottom: 70,
-  },
-  bottomButtonWrapper: {
-    position: 'absolute',
-    bottom: '5%',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  button: {
-    width: 336,
-    height: 60,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import HappyTargetIcon from '../../assets/icon/dependent/happy_target.svg';
 import QuestionIcon from '../../assets/icon/dependent/question.svg';
 import OnboardingLayout from '../../components/layout/OnboardingLayout';
+import StepButton from '../../components/shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
@@ -16,63 +17,66 @@ export default function ScreenCode() {
   const parsedSubGoals = subGoals ? JSON.parse(subGoals as string) : [];
 
   return (
-    <OnboardingLayout
-      title="STEP 4 학습 및 기억"
-      mainTitle={'계획을 일정에 등록하면\n더 꾸준히 이어갈 수 있어요.'}
-      subtitle="이제 이 세부계획을 언제, 어떻게 실천할지 정해볼까요?"
-      progress={0.8}
-      bottomButton={{
-        text: '캥거루틴 하러가기',
-        onPress: () => router.push('/step6'),
-        disabled: false,
-      }}
-    >
-      <ScrollView
-        style={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
+    <>
+      <OnboardingLayout
+        title="STEP 4 학습 및 기억"
+        mainTitle={'계획을 일정에 등록하면\n더 꾸준히 이어갈 수 있어요.'}
+        subtitle="이제 이 세부계획을 언제, 어떻게 실천할지 정해볼까요?"
+        progress={0.8}
       >
-            <View style={styles.labelContainer}>
-              <View style={styles.labelBox}>
-                <QuestionIcon width={16} height={16} color={Colors.gray900} />
-                <Text style={styles.labelText}>Main Goal</Text>
+        <ScrollView
+          style={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
+              <View style={styles.labelContainer}>
+                <View style={styles.labelBox}>
+                  <QuestionIcon width={16} height={16} color={Colors.gray900} />
+                  <Text style={styles.labelText}>Main Goal</Text>
+                </View>
               </View>
-            </View>
 
-            <View style={styles.goalCard}>
-              <Text style={[Typo.body02, { color: Colors.gray600 }]}>
-                {(mainGoal as string) || '목표 없음'}
-              </Text>
-            </View>
-
-            <View style={styles.labelContainer}>
-              <View style={styles.labelBox}>
-                <HappyTargetIcon
-                  width={16}
-                  height={16}
-                  color={Colors.gray900}
-                />
-                <Text style={styles.labelText}>Sub Goal</Text>
-              </View>
-            </View>
-
-            <View style={styles.subGoalCard}>
-              {parsedSubGoals.map((goal: string, index: number) => (
-                <Text
-                  key={index}
-                  style={[
-                    Typo.body02,
-                    {
-                      color: Colors.gray600,
-                      marginBottom: index < parsedSubGoals.length - 1 ? 16 : 0,
-                    },
-                  ]}
-                >
-                  {goal}
+              <View style={styles.goalCard}>
+                <Text style={[Typo.body02, { color: Colors.gray600 }]}>
+                  {(mainGoal as string) || '목표 없음'}
                 </Text>
-              ))}
-            </View>
-          </ScrollView>
-    </OnboardingLayout>
+              </View>
+
+              <View style={styles.labelContainer}>
+                <View style={styles.labelBox}>
+                  <HappyTargetIcon
+                    width={16}
+                    height={16}
+                    color={Colors.gray900}
+                  />
+                  <Text style={styles.labelText}>Sub Goal</Text>
+                </View>
+              </View>
+
+              <View style={styles.subGoalCard}>
+                {parsedSubGoals.map((goal: string, index: number) => (
+                  <Text
+                    key={index}
+                    style={[
+                      Typo.body02,
+                      {
+                        color: Colors.gray600,
+                        marginBottom: index < parsedSubGoals.length - 1 ? 16 : 0,
+                      },
+                    ]}
+                  >
+                    {goal}
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+      </OnboardingLayout>
+
+      <StepButton
+        text="캥거루틴 하러가기"
+        onPress={() => router.push('/step6')}
+        disabled={false}
+      />
+    </>
   );
 }
 

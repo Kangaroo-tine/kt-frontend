@@ -16,6 +16,7 @@ import PenIcon from '../../assets/icon/pen.svg';
 import StarIcon from '../../assets/icon/star.svg';
 import XIcon from '../../assets/icon/x.svg';
 import OnboardingLayout from '../../components/layout/OnboardingLayout';
+import StepButton from '../../components/shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
@@ -64,26 +65,13 @@ export default function ScreenCode() {
   ];
 
   return (
-    <OnboardingLayout
-      title="STEP 3 목록화"
-      mainTitle={'이제 Main Goal을\n작은 단계들로 나누어 볼까요?'}
-      subtitle="작은 성공을 하나씩 쌓아가면 큰 목표도 더 쉽게 달성할 수 있어요!"
-      progress={0.6}
-      bottomButton={{
-        text: '다음',
-        onPress: () => {
-          const allSelectedGoals = [...selectedSubGoals, ...userAddedGoals];
-          router.push(
-            `/step5?mainGoal=${encodeURIComponent(
-              (mainGoal as string) || '',
-            )}&subGoals=${encodeURIComponent(
-              JSON.stringify(allSelectedGoals),
-            )}`,
-          );
-        },
-        disabled: !isNextButtonActive,
-      }}
-    >
+    <>
+      <OnboardingLayout
+        title="STEP 3 목록화"
+        mainTitle={'이제 Main Goal을\n작은 단계들로 나누어 볼까요?'}
+        subtitle="작은 성공을 하나씩 쌓아가면 큰 목표도 더 쉽게 달성할 수 있어요!"
+        progress={0.6}
+      >
       <ScrollView
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -227,7 +215,23 @@ export default function ScreenCode() {
               ))}
             </View>
           </ScrollView>
-    </OnboardingLayout>
+      </OnboardingLayout>
+
+      <StepButton
+        text="다음"
+        onPress={() => {
+          const allSelectedGoals = [...selectedSubGoals, ...userAddedGoals];
+          router.push(
+            `/step5?mainGoal=${encodeURIComponent(
+              (mainGoal as string) || '',
+            )}&subGoals=${encodeURIComponent(
+              JSON.stringify(allSelectedGoals),
+            )}`,
+          );
+        }}
+        disabled={!isNextButtonActive}
+      />
+    </>
   );
 }
 

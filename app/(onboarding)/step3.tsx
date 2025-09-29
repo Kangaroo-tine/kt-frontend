@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import XIcon from '../../assets/icon/x.svg';
 import OnboardingLayout from '../../components/layout/OnboardingLayout';
+import StepButton from '../../components/shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
 
@@ -16,65 +17,69 @@ export default function ScreenCode() {
   const [goalText, setGoalText] = useState('');
 
   return (
-    <OnboardingLayout
-      title="STEP 2 목표 정의"
-      mainTitle={'해당 카테고리의\nMain Goal을 입력해주세요.'}
-      subtitle="이 카테고리를 통해 이루고 싶은 최종 목표를 자유롭게 적어보세요."
-      progress={0.4}
-      bottomButton={{
-        text: '다음',
-        onPress: () =>
+    <>
+      <OnboardingLayout
+        title="STEP 2 목표 정의"
+        mainTitle={'해당 카테고리의\nMain Goal을 입력해주세요.'}
+        subtitle="이 카테고리를 통해 이루고 싶은 최종 목표를 자유롭게 적어보세요."
+        progress={0.4}
+      >
+        <View style={styles.categoryContainer}>
+          <View style={styles.categoryBox}>
+            <Text style={[Typo.heading03, { color: Colors.gray900 }]}>
+              {category || '선택된 카테고리'}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputBox,
+              {
+                borderBottomColor: goalText ? Colors.main600 : Colors.gray200,
+              },
+            ]}
+          >
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[
+                  Typo.body02,
+                  {
+                    color: goalText ? Colors.gray600 : Colors.gray300,
+                    flex: 1,
+                  },
+                ]}
+                placeholder="이루고 싶은 목표 입력하기"
+                placeholderTextColor={Colors.gray300}
+                value={goalText}
+                onChangeText={setGoalText}
+              />
+              <TouchableOpacity onPress={() => setGoalText('')}>
+                <View style={styles.iconBox}>
+                  <XIcon
+                    width={20}
+                    height={20}
+                    color={goalText ? Colors.main600 : Colors.gray200}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </OnboardingLayout>
+
+      <StepButton
+        text="다음"
+        onPress={() =>
           router.push(
             `/step4?category=${encodeURIComponent(
               (category as string) || '',
             )}&goalText=${encodeURIComponent(goalText)}`,
-          ),
-        disabled: !goalText,
-      }}
-    >
-      <View style={styles.categoryContainer}>
-        <View style={styles.categoryBox}>
-          <Text style={[Typo.heading03, { color: Colors.gray900 }]}>
-            {category || '선택된 카테고리'}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.inputContainer}>
-        <View
-          style={[
-            styles.inputBox,
-            {
-              borderBottomColor: goalText ? Colors.main600 : Colors.gray200,
-            },
-          ]}
-        >
-          <View style={styles.inputRow}>
-            <TextInput
-              style={[
-                Typo.body02,
-                {
-                  color: goalText ? Colors.gray600 : Colors.gray300,
-                  flex: 1,
-                },
-              ]}
-              placeholder="이루고 싶은 목표 입력하기"
-              placeholderTextColor={Colors.gray300}
-              value={goalText}
-              onChangeText={setGoalText}
-            />
-            <TouchableOpacity onPress={() => setGoalText('')}>
-              <View style={styles.iconBox}>
-                <XIcon
-                  width={20}
-                  height={20}
-                  color={goalText ? Colors.main600 : Colors.gray200}
-                />
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </OnboardingLayout>
+          )
+        }
+        disabled={!goalText}
+      />
+    </>
   );
 }
 

@@ -8,6 +8,7 @@ import Center_off from '../../assets/GUI/emotion/emotion_off.svg';
 import Center_on from '../../assets/GUI/emotion/emotion_on.svg';
 import FloatingButton from '../../components/FloatingButton';
 import OnboardingLayout from '../../components/layout/OnboardingLayout';
+import StepButton from '../../components/shared/StepButton';
 
 const labels = [
   '학습·언어',
@@ -33,35 +34,39 @@ export default function ScreenPhone() {
   ];
 
   return (
-    <OnboardingLayout
-      title="STEP 1 목표 설정"
-      mainTitle={'달성하고 싶은 목표의\n카테고리를 선택해주세요.'}
-      subtitle="하나의 카테고리를 선택해주세요."
-      progress={0.2}
-      bottomButton={{
-        text: '다음',
-        onPress: () =>
-          router.push(`/step3?category=${encodeURIComponent(selected || '')}`),
-        disabled: !selected,
-      }}
-    >
-      <View style={styles.floatingButtonContainer}>
-        {labels.map((label, index) => (
-          <FloatingButton
-            key={label}
-            label={label}
-            active={selected === label}
-            onPress={() => setSelected(label)}
-            top={buttonData[index].top}
-            left={buttonData[index].left}
-            size={buttonData[index].size}
-          />
-        ))}
-      </View>
-      <View style={{ marginBottom: 20 }}>
-        {selected ? <Center_on width="100%" /> : <Center_off width="100%" />}
-      </View>
-    </OnboardingLayout>
+    <>
+      <OnboardingLayout
+        title="STEP 1 목표 설정"
+        mainTitle={'달성하고 싶은 목표의\n카테고리를 선택해주세요.'}
+        subtitle="하나의 카테고리를 선택해주세요."
+        progress={0.2}
+      >
+        <View style={styles.floatingButtonContainer}>
+          {labels.map((label, index) => (
+            <FloatingButton
+              key={label}
+              label={label}
+              active={selected === label}
+              onPress={() => setSelected(label)}
+              top={buttonData[index].top}
+              left={buttonData[index].left}
+              size={buttonData[index].size}
+            />
+          ))}
+        </View>
+        <View style={{ marginBottom: 20 }}>
+          {selected ? <Center_on width="100%" /> : <Center_off width="100%" />}
+        </View>
+      </OnboardingLayout>
+
+      <StepButton
+        text="다음"
+        onPress={() =>
+          router.push(`/step3?category=${encodeURIComponent(selected || '')}`)
+        }
+        disabled={!selected}
+      />
+    </>
   );
 }
 
