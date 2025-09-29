@@ -10,7 +10,7 @@ const Loading = () => {
       <Text style={styles.text}>켈퍼 로딩 화면</Text>
       <TouchableOpacity
         style={styles.roundButton}
-        onPress={() => router.push('../kelper')}
+        onPress={() => router.push('../../kelper')}
       >
         <Text style={styles.buttonText}>Go</Text>
       </TouchableOpacity>

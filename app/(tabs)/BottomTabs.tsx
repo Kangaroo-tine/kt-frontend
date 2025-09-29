@@ -27,11 +27,6 @@ import DependentCalendar from './dependent/calendar';
 import Loading from './mainview/loading';
 import Home from './mainview/home';
 import MyPage from './mainview/mypage';
-//각 화면 임포트 - Parent
-import ParentCalendar from './parent/calendar';
-import ParentEmotion from './parent/emotion';
-import ParentHome from './parent/home';
-import ParentMyPage from './parent/mypage';
 
 const Tab = createBottomTabNavigator();
 
