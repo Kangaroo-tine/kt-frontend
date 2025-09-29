@@ -1,18 +1,18 @@
-//아이콘
-import HomeDependentIcon from '@/assets/GUI/home_dependent.svg';
+import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+
 //하위 컴포넌트
 import MainGoalCard from '@/components/home/MainGoalCard';
+import AddMainGoalCard from '@/components/home/AddMainGoalCard';
 import StepCard from '@/components/home/SubGoalCard';
-import { Colors } from '@/constants/Colors';
+
+//아이콘
+import HomeDependentIcon from '@/assets/GUI/home_dependent.svg';
+
 //폰트, 컬러
+import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
-import { EmotionType, Header } from '@/types/homeHeader';
-//미션 리스트 타입 포맷
-import { Mission, MissionStatus } from '@/types/mission';
-
-import React, { useState } from 'react';
-
-import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 //임의 메인골, 서브골 데이터
 const mockData = [
@@ -68,11 +68,15 @@ const mockData = [
 //dependent 홈 구현
 export default function Home() {
   const userName = '장효원'; //임의 사용자 이름
+  const router = useRouter();
 
   const [mainGoals, setMainGoals] = useState(mockData);
   const [selectedId, setSelectedId] = useState<string>(mockData[0].id);
 
   const selectedGoal = mainGoals.find((g) => g.id === selectedId);
+
+  // 메인골 추가 버튼을 위한 부분
+  const listData = [...mainGoals, { id: 'add-card', type: 'add' }];
 
   // 서브골 체크박스
   const toggleSubGoal = (goalId: string, subGoalId: string) => {
@@ -117,13 +121,16 @@ export default function Home() {
               onPress={() => setSelectedId(item.id)}
             />
           )}
-          contentContainerStyle={{ paddingHorizontal: 6 }}
+          // 리스트 끝에 플러스 카드 추가 ========>>> 여기에 라우팅 수정!!!!
+          ListFooterComponent={
+            <AddMainGoalCard onPress={() => router.push('../../mypages/profile/edit')} />
+          }
+          contentContainerStyle={{ paddingHorizontal: 16, alignItems: 'center' }}
           showsHorizontalScrollIndicator={false}
-          style={{ marginTop: 20 }}
         />
       </View>
 
-      {/* 회색 영역 */}
+      {/* 회색 영역 (서브 골 리스트) */}
       <View style={styles.subGoalSection}>
         {/* 선택된 메인골 제목 */}
         <Text style={styles.selectedMainGoalTitle}>{selectedGoal?.title}</Text>
@@ -154,7 +161,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 28,
-    marginBottom: 5,
+    marginBottom: 12,
   },
   name: {
     ...Typo.title03,
