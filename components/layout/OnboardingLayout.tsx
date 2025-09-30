@@ -20,6 +20,7 @@ interface OnboardingLayoutProps {
   subtitle: string;
   progress: number;
   children: React.ReactNode;
+  leftIcon?: React.ReactNode;
 }
 
 export default function OnboardingLayout({
@@ -28,6 +29,7 @@ export default function OnboardingLayout({
   subtitle,
   progress,
   children,
+  leftIcon,
 }: OnboardingLayoutProps) {
   return (
     <KeyboardAvoidingView
@@ -36,7 +38,7 @@ export default function OnboardingLayout({
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
-          <Header title={title} />
+          <Header title={title} leftIcon={leftIcon} />
           <View style={styles.titleWrapper}>
             <Text style={[Typo.title03, { color: Colors.gray900 }]}>
               {mainTitle}
