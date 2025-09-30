@@ -1,4 +1,3 @@
-// app/(onboarding)/start.tsx
 import { useState } from 'react';
 
 import { StyleSheet, Text, View } from 'react-native';
@@ -49,10 +48,7 @@ export default function ScreenRole() {
           </TouchableOpacity>
         </View>
         {textIndex === 2 && (
-          <StepButton
-            text="시작하기"
-            onPress={() => router.push('/step2')}
-          />
+          <StepButton text="시작하기" onPress={() => router.push('/step2')} />
         )}
       </SafeAreaView>
     );
@@ -95,10 +91,7 @@ export default function ScreenRole() {
           </Text>
         </View>
       </View>
-      <StepButton
-        text="다음"
-        onPress={() => setShowIntro(true)}
-      />
+      <StepButton text="다음" onPress={() => setShowIntro(true)} />
     </SafeAreaView>
   );
 }

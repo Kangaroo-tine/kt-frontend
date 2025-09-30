@@ -8,9 +8,10 @@ import { Typo } from '../constants/Typo';
 interface HeaderProps {
   title?: string;
   onBackPress?: () => void;
+  leftIcon?: React.ReactNode;
 }
 
-export default function Header({ title, onBackPress }: HeaderProps) {
+export default function Header({ title, onBackPress, leftIcon }: HeaderProps) {
   const router = useRouter();
 
   const handleBackPress = () => {
@@ -24,9 +25,13 @@ export default function Header({ title, onBackPress }: HeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.backButton}>
-        <TouchableOpacity onPress={handleBackPress}>
-          <Back width={24} height={24} />
-        </TouchableOpacity>
+        {leftIcon ? (
+          leftIcon
+        ) : (
+          <TouchableOpacity onPress={handleBackPress}>
+            <Back width={24} height={24} />
+          </TouchableOpacity>
+        )}
       </View>
       {title && (
         <View style={styles.titleContainer}>

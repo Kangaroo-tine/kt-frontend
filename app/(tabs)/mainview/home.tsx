@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
-
-//하위 컴포넌트
-import MainGoalCard from '@/components/home/MainGoalCard';
-import AddMainGoalCard from '@/components/home/AddMainGoalCard';
-import StepCard from '@/components/home/SubGoalCard';
-
 //아이콘
 import HomeDependentIcon from '@/assets/GUI/home_dependent.svg';
-
+import GoalStepModal from '@/components/goalstep/GoalStepModal';
+import AddMainGoalCard from '@/components/home/AddMainGoalCard';
+//하위 컴포넌트
+import MainGoalCard from '@/components/home/MainGoalCard';
+import StepCard from '@/components/home/SubGoalCard';
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
+
+import React, { useState } from 'react';
+
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { useRouter } from 'expo-router';
 
 //임의 메인골, 서브골 데이터
 const mockData = [
@@ -65,13 +66,13 @@ const mockData = [
   },
 ];
 
-//dependent 홈 구현
 export default function Home() {
   const userName = '장효원'; //임의 사용자 이름
   const router = useRouter();
 
   const [mainGoals, setMainGoals] = useState(mockData);
   const [selectedId, setSelectedId] = useState<string>(mockData[0].id);
+  const [showGoalStep, setShowGoalStep] = useState(false);
 
   const selectedGoal = mainGoals.find((g) => g.id === selectedId);
 
@@ -92,6 +93,25 @@ export default function Home() {
           : goal,
       ),
     );
+  };
+
+  // 목표 설정 완료 후 새로운 목표 추가
+  //TODO : api 결정되면 추가 버튼으로 만든 목표도 정보 받아서 설정해야함.
+  const handleGoalStepComplete = (goalData: any) => {
+    const newGoal = {
+      id: `main-${Date.now()}`,
+      category: goalData.category.toLowerCase(),
+      title: goalData.mainGoal,
+      subGoals: goalData.subGoals.map((goal: string, index: number) => ({
+        id: `sub-${Date.now()}-${index}`,
+        step: index + 1,
+        title: goal,
+        completed: false,
+      })),
+    };
+
+    setMainGoals((prev) => [...prev, newGoal]);
+    setSelectedId(newGoal.id);
   };
 
   return (
@@ -121,11 +141,14 @@ export default function Home() {
               onPress={() => setSelectedId(item.id)}
             />
           )}
-          // 리스트 끝에 플러스 카드 추가 ========>>> 여기에 라우팅 수정!!!!
+          // 리스트 끝에 플러스 카드 추가 ========>>> 목표 설정 모달 트리거
           ListFooterComponent={
-            <AddMainGoalCard onPress={() => router.push('../../mypages/profile/edit')} />
+            <AddMainGoalCard onPress={() => setShowGoalStep(true)} />
           }
-          contentContainerStyle={{ paddingHorizontal: 16, alignItems: 'center' }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            alignItems: 'center',
+          }}
           showsHorizontalScrollIndicator={false}
         />
       </View>
@@ -150,6 +173,13 @@ export default function Home() {
           showsVerticalScrollIndicator={false}
         />
       </View>
+
+      {/* 목표 설정 모달 */}
+      <GoalStepModal
+        visible={showGoalStep}
+        onClose={() => setShowGoalStep(false)}
+        onComplete={handleGoalStepComplete}
+      />
     </View>
   );
 }
