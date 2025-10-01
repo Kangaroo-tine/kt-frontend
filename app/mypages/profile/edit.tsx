@@ -18,7 +18,7 @@ export default function ProfileEdit() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      
+
       {/* 헤더 */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -28,7 +28,7 @@ export default function ProfileEdit() {
       </View>
 
       <View>
-        
+
       </View>
     </View>
   );
@@ -43,15 +43,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding : 12,
+    padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
   backButton: {
-    marginRight : 12,
+    marginRight: 12,
   },
   headerTitle: {
     ...Typo.heading04,
-    color : Colors.gray800,
+    color: Colors.gray800,
   },
 });

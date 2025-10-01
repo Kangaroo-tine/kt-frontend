@@ -57,11 +57,11 @@ const MyPage = () => {
             label="프로필 수정"
             onPress={() => router.push('../mypages/profile/edit')}
           />
-          <MenuItem icon={AtIcon} label="계정 관리" onPress={() => {}} />
+          <MenuItem icon={AtIcon} label="계정 관리" onPress={() => { }} />
           <MenuItem
             icon={AlarmIcon}
             label="푸시 알림 동의"
-            onPress={() => {}}
+            onPress={() => { }}
           />
         </View>
       </View>
@@ -73,7 +73,7 @@ const MyPage = () => {
           <MenuItem
             icon={BookIcon}
             label="서비스 이용 약관"
-            onPress={() => {}}
+            onPress={() => { }}
           />
           <MenuItem icon={BookIcon} label="개인정보 처리방침" />
         </View>
