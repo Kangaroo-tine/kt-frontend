@@ -1,5 +1,8 @@
 // BottomTabs.tsx
-import Logo from '@/assets/GUI/logo/logo_dark.svg';
+import React from 'react';
+import { useRouter } from "expo-router";
+import { TouchableOpacity } from "react-native";
+
 //아이콘
 import {
   CalendarIcon,
@@ -7,13 +10,15 @@ import {
   KelperIcon,
   MyPageIcon,
 } from '@/components/icon/bottombar';
+
+import Bell from "@/assets/alert/bell.svg";
+import Logo from '@/assets/GUI/logo/logo_dark.svg';
+
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
 //px에서 화면 비율에 맞는 크기로 변환해주는 유틸
 import { responsiveH, responsiveW } from '@/scripts/utils/responsive';
-
-import React from 'react';
 
 import { Text, View } from 'react-native';
 
@@ -30,6 +35,7 @@ import MyPage from './mainview/mypage';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
@@ -61,6 +67,17 @@ export default function BottomTabs() {
             <View style={{ paddingLeft: 12 }}>
               <Logo width={responsiveW(80)} height={responsiveH(20)} />
             </View>
+          ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push("../alarmCenter")} // 알림센터 경로
+              style={{ paddingRight: 16 }}
+            >
+              <Bell
+                width={20}
+                height={20}
+              />
+            </TouchableOpacity>
           ),
           tabBarIcon: ({ focused }) => (
             <HomeIcon
@@ -105,7 +122,16 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: '캘린더',
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              캘린더
+            </Text>
+          ),
         }}
       />
       <Tab.Screen
