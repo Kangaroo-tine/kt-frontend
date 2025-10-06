@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, FlatList, } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import dayjs from 'dayjs';
@@ -99,6 +99,20 @@ export default function AlarmCenter() {
     );
   };
 
+  const combinedData = [
+    { type: 'header', title: '오늘' },
+    ...alertsToday.map((a) => ({ ...a, isActive: true })),
+    { type: 'header', title: '이전 알림' },
+    ...alertsBefore.map((a) => ({ ...a, isActive: false })),
+  ];
+
+  const renderItem = ({ item }: any) => {
+    if (item.type === 'header') {
+      return <Text style={styles.sectionTitle}>{item.title}</Text>;
+    }
+    return <AlertCard {...item} />;
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -112,27 +126,13 @@ export default function AlarmCenter() {
       </View>
 
       {/* 본문 */}
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 23}}>
-        {/* 오늘 */}
-        {alertsToday.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>오늘</Text>
-            {alertsToday.map((a) => (
-              <AlertCard key={a.id} {...a} isActive />
-            ))}
-          </>
-        )}
-
-        {/* 이전 알림 */}
-        {alertsBefore.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { marginTop: 10 }]}>이전 알림</Text>
-            {alertsBefore.map((a) => (
-              <AlertCard key={a.id} {...a} isActive={false} />
-            ))}
-          </>
-        )}
-      </ScrollView>
+      <FlatList
+        data={combinedData}
+        keyExtractor={(item, index) => 'id' in item ? String(item.id) : `header-${index}`}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
