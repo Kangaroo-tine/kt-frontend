@@ -85,4 +85,14 @@ export const Typo = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0,
   },
+  label04: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 12,
+    letterSpacing: -0.01 * 12,
+  },
+  label05: {
+    fontFamily: 'Pretendard-Light',
+    fontSize: 10,
+    letterSpacing:0,
+  },
 });
