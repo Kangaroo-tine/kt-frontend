@@ -1,5 +1,7 @@
 // BottomTabs.tsx
 import React from 'react';
+import { useRouter } from "expo-router";
+import { TouchableOpacity } from "react-native";
 
 //아이콘
 import {
@@ -8,6 +10,7 @@ import {
   HomeIcon,
   MyPageIcon,
 } from '@/components/icon/bottombar';
+import Bell from "@/assets/alert/bell.svg";
 import Logo from '@/assets/GUI/logo/logo_dark.svg';
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
@@ -31,6 +34,7 @@ import MyPage from './mainview/mypage';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabs() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
@@ -62,6 +66,17 @@ export default function BottomTabs() {
             <View style={{ paddingLeft: 12 }}>
               <Logo width={responsiveW(80)} height={responsiveH(20)} />
             </View>
+          ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push("../alarmCenter")} // 알림센터 경로
+              style={{ paddingRight: 16 }}
+            >
+              <Bell
+                width={20}
+                height={20}
+              />
+            </TouchableOpacity>
           ),
           tabBarIcon: ({ focused }) => (
             <HomeIcon
