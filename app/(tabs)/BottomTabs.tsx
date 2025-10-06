@@ -122,7 +122,16 @@ export default function BottomTabs() {
               height={24}
             />
           ),
-          tabBarLabel: '캘린더',
+          tabBarLabel: ({ focused }) => (
+            <Text
+              style={[
+                Typo.label01,
+                { color: focused ? Colors.main700 : Colors.gray300 },
+              ]}
+            >
+              캘린더
+            </Text>
+          ),
         }}
       />
       <Tab.Screen
