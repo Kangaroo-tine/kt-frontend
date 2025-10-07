@@ -19,7 +19,7 @@ import { Typo } from '@/constants/Typo';
 // 아이콘
 import BackArrow from '@/assets/icon/arrow/back_arrow.svg';
 import ScheduleActive from '@/assets/alert/schedule_active.svg';
-import ScheduleInactive from '@/assets/alert/routine_inactive.svg';
+import ScheduleInactive from '@/assets/alert/schedule_inactive.svg';
 import RoutineActive from '@/assets/alert/routine_active.svg';
 import RoutineInactive from '@/assets/alert/routine_inactive.svg';
 
@@ -32,12 +32,12 @@ export default function AlarmCenter() {
     {
       id: 1,
       content: '수영장에 잘 도착하셨나요? 관악 수영장 등록하기 일정의 수행 여부를 응답해 주세요! ',
-      createdAt: '2025-10-06T07:25:00+09:00', 
+      createdAt: '2025-10-07T07:25:00+09:00', 
     },
     {
       id: 2,
       content: "일본어 프리토킹하기의 세부 루틴인 ‘문제집 10쪽 풀기’를 시작할 시간이 됐어요! 루틴을 하지 못하더라도 포기하지 않는 자세가 중요해요.",
-      createdAt: '2025-10-06T02:10:00+09:00',
+      createdAt: '2025-10-07T02:10:00+09:00',
     },
     {
       id: 3,
@@ -77,7 +77,7 @@ export default function AlarmCenter() {
       <View style={[styles.alertCard, !isActive && styles.inactiveCard]}>
         <IconComponent width={16} height={16} style={styles.icon} />
         <View style={styles.alertTextBox}>
-          <Text style={[styles.alertTitle, !isActive && styles.inactiveText]}>{title}</Text>
+          <Text style={[styles.alertTitle, !isActive && styles.inactiveText]}>일정알림</Text>
           <Text style={[styles.alertContent, !isActive && styles.inactiveText]}>{content}</Text>
           <Text style={[styles.alertTime, !isActive && styles.inactiveText]}>
             {formatTime(createdAt)}
