@@ -57,7 +57,7 @@ const MyPage = () => {
             label="프로필 수정"
             onPress={() => router.push('../mypages/profile/edit')}
           />
-          <MenuItem icon={AtIcon} label="계정 관리" onPress={() => { }} />
+          <MenuItem icon={AtIcon} label="계정 관리" onPress={() => router.push('../mypages/account/manage')} />
           <MenuItem
             icon={AlarmIcon}
             label="푸시 알림 동의"
