@@ -222,7 +222,7 @@ const Kelper = () => {
             지금 목표 달성에 어려움을 겪는 이유를{'\n'}선택해주세요.
           </Text>
 
-          {/* 박스 전체 */}
+          {/* 이유 선택 박스 전체 */}
           <View
             style={[
               styles.dropdownBox,
