@@ -31,29 +31,21 @@ export default function AlarmCenter() {
   const alerts = [
     {
       id: 1,
-      type: 'schedule',
-      title: '일정 알림',
       content: '수영장에 잘 도착하셨나요? 관악 수영장 등록하기 일정의 수행 여부를 응답해 주세요! ',
       createdAt: '2025-10-06T07:25:00+09:00', 
     },
     {
       id: 2,
-      type: 'routine',
-      title: '루틴 알림',
       content: "일본어 프리토킹하기의 세부 루틴인 ‘문제집 10쪽 풀기’를 시작할 시간이 됐어요! 루틴을 하지 못하더라도 포기하지 않는 자세가 중요해요.",
       createdAt: '2025-10-06T02:10:00+09:00',
     },
     {
       id: 3,
-      type: 'routine',
-      title: '루틴 알림',
       content: "수영장에 잘 도착하셨나요? 관악 수영장 등록하기 일정의 수행 여부를 응답해 주세요! ",
       createdAt: '2025-10-04T09:30:00+09:00', 
     },
     {
       id: 4,
-      type: 'schedule',
-      title: '일정 알림',
       content: '수영장에 잘 도착하셨나요? 관악 수영장 등록하기 일정의 수행 여부를 응답해 주세요! ',
       createdAt: '2025-09-29T18:00:00+09:00', 
     },
@@ -75,15 +67,11 @@ export default function AlarmCenter() {
   };
 
   // 알림 카드
-  const AlertCard = ({ title, content, createdAt, type, isActive }: any) => {
+  const AlertCard = ({ title, content, createdAt,isActive }: any) => {
     const IconComponent =
-      type === 'schedule'
-        ? isActive
+      isActive
           ? ScheduleActive
           : ScheduleInactive
-        : isActive
-        ? RoutineActive
-        : RoutineInactive;
 
     return (
       <View style={[styles.alertCard, !isActive && styles.inactiveCard]}>
