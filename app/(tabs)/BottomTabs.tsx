@@ -23,7 +23,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //Dependent - 일단 대상자 화면만 뜨도록 설정해놓음 - 분기는 나중에 구현
-import DependentCalendar from './dependent/calendar';
+import Calendar from './mainview/calendar';
 import Loading from './mainview/loading';
 import Home from './mainview/home';
 import MyPage from './mainview/mypage';
@@ -84,7 +84,7 @@ export default function BottomTabs() {
       />
       <Tab.Screen
         name="Calendar"
-        component={DependentCalendar}
+        component={Calendar}
         options={{
           headerTitle: () => (
             <View

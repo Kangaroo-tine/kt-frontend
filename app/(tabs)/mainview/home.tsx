@@ -85,11 +85,11 @@ export default function Home() {
       prev.map((goal) =>
         goal.id === goalId
           ? {
-              ...goal,
-              subGoals: goal.subGoals.map((sg) =>
-                sg.id === subGoalId ? { ...sg, completed: !sg.completed } : sg,
-              ),
-            }
+            ...goal,
+            subGoals: goal.subGoals.map((sg) =>
+              sg.id === subGoalId ? { ...sg, completed: !sg.completed } : sg,
+            ),
+          }
           : goal,
       ),
     );
@@ -143,6 +143,7 @@ export default function Home() {
           )}
           // 리스트 끝에 플러스 카드 추가 ========>>> 목표 설정 모달 트리거
           ListFooterComponent={
+
             <AddMainGoalCard onPress={() => setShowGoalStep(true)} />
           }
           contentContainerStyle={{
