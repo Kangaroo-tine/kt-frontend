@@ -5,6 +5,7 @@ import AddMainGoalCard from '@/components/home/AddMainGoalCard';
 //하위 컴포넌트
 import MainGoalCard from '@/components/home/MainGoalCard';
 import StepCard from '@/components/home/SubGoalCard';
+import ReusableModal from "@/components/shared/ReusableModal";
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
@@ -74,25 +75,46 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string>(mockData[0].id);
   const [showGoalStep, setShowGoalStep] = useState(false);
 
-  const selectedGoal = mainGoals.find((g) => g.id === selectedId);
-
   // 메인골 추가 버튼을 위한 부분
   const listData = [...mainGoals, { id: 'add-card', type: 'add' }];
 
-  // 서브골 체크박스
-  const toggleSubGoal = (goalId: string, subGoalId: string) => {
+
+  // 서브골 완료 체크 시 모달
+  const [checkModalVisible, setCheckModalVisible] = useState(false);
+  const [targetGoal, setTargetGoal] = useState<{
+    mainId: string;
+    subId: string;
+    title: string;
+  } | null>(null);
+
+  const selectedGoal = mainGoals.find((g) => g.id === selectedId);
+
+  // subGoal 완료 처리 함수
+  const completeSubGoal = (goalId: string, subGoalId: string) => {
     setMainGoals((prev) =>
       prev.map((goal) =>
         goal.id === goalId
           ? {
             ...goal,
             subGoals: goal.subGoals.map((sg) =>
-              sg.id === subGoalId ? { ...sg, completed: !sg.completed } : sg,
+              sg.id === subGoalId ? { ...sg, completed: true } : sg
             ),
           }
-          : goal,
-      ),
+          : goal
+      )
     );
+  };
+
+  // StepCard 클릭 시 → 모달 열기
+  const handleStepPress = (
+    goalId: string,
+    subGoalId: string,
+    title: string,
+    completed: boolean
+  ) => {
+    if (completed) return; // 이미 완료된 항목 클릭 불가
+    setTargetGoal({ mainId: goalId, subId: subGoalId, title });
+    setCheckModalVisible(true);
   };
 
   // 목표 설정 완료 후 새로운 목표 추가
@@ -109,7 +131,6 @@ export default function Home() {
         completed: false,
       })),
     };
-
     setMainGoals((prev) => [...prev, newGoal]);
     setSelectedId(newGoal.id);
   };
@@ -167,7 +188,7 @@ export default function Home() {
               step={item.step}
               title={item.title}
               completed={item.completed}
-              onPress={() => toggleSubGoal(selectedGoal!.id, item.id)}
+              onPress={() => handleStepPress(selectedGoal!.id, item.id, item.title, item.completed)}
             />
           )}
           contentContainerStyle={styles.subGoalContainer}
@@ -180,6 +201,28 @@ export default function Home() {
         visible={showGoalStep}
         onClose={() => setShowGoalStep(false)}
         onComplete={handleGoalStepComplete}
+      />
+
+      {/* 탈퇴하기 모달 */}
+      <ReusableModal
+        isVisible={checkModalVisible}
+        title="목표를 완료했나요?"
+        subtitle={
+          targetGoal ? `"${targetGoal.title}" 일정을 완료하셨나요?` : ""
+        }
+        cancelText="취소"
+        confirmText="완료"
+        onCancel={() => {
+          setCheckModalVisible(false);
+          setTargetGoal(null);
+        }}
+        onConfirm={() => {
+          if (targetGoal) {
+            completeSubGoal(targetGoal.mainId, targetGoal.subId);
+          }
+          setCheckModalVisible(false);
+          setTargetGoal(null);
+        }}
       />
     </View>
   );

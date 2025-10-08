@@ -60,7 +60,7 @@ export default function CompleteScreen() {
           onPress={() => router.push('/(tabs)/BottomTabs')}
         >
           <Text style={[Typo.heading02, { color: Colors.gray800 }]}>
-            일정 추가히기
+            일정 추가하기
           </Text>
         </TouchableOpacity>
       </View>

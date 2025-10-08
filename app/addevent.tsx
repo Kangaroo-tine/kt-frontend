@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 20,
         borderWidth: 1,
-        borderColor: Colors.gray200,   // 선 색상 (연한 회색)
+        borderColor: Colors.gray200,
     },
 
     // 제목 입력창: 하단 보더만
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     // 시간 영역
     timeRow: { marginTop: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, },
 
-    // 시간 입력: 둥근 pill 모양
+    // 시간 입력 둥근 모양
     timeInput: {
         width: 60,
         paddingVertical: 4,
@@ -409,17 +409,16 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         textAlign: "center",
     },
-    // 시간 기본 상태(유효하지 않음/비어있음)
+    // 시간 기본 상태(입력 안한 상태)
     timeIdle: {
         borderColor: Colors.gray200,
         color: Colors.gray400,
         backgroundColor: Colors.gray0,
     },
-    // 시간 활성 상태(유효함)
+    // 시간 활성 상태
     timeActive: {
         borderColor: Colors.main600,
         color: Colors.main800,
-        //backgroundColor: Colors.main100,
     },
     // 가운데 화살표
     timeArrow: {
@@ -435,13 +434,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         borderColor: Colors.gray200,
-        minWidth: 34, // 터치영역/시각 균일화
+        minWidth: 34,
         alignItems: "center",
         marginBottom: 20,
     },
     // 선택된 요일 칩(배경은 연녹, 테두리는 메인색)
     dayChipOn: {
-        //backgroundColor: Colors.main100,
         borderColor: Colors.main600,
     },
 
@@ -451,7 +449,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         borderRadius: 10,
         alignItems: "center",
-        backgroundColor: Colors.main600, // 활성 색
+        backgroundColor: Colors.main600,
     },
     // 비활성 시: 연회색 배경
     submitBtnDisabled: { backgroundColor: Colors.gray200 },

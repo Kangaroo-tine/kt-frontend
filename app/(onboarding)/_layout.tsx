@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { Slot } from 'expo-router';
 
 export default function RootLayout() {
+  console.log('========== ONBOARDING LAYOUT 렌더링 ==========');
   return (
     <View style={{ flex: 1 }}>
       <Slot />

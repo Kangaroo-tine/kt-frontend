@@ -1,29 +1,67 @@
-import Plus from '@/assets/icon/plus2.svg';
 import Target from '@/assets/icon/dependent/target.svg';
-import Exercise from '@/assets/icon/goal/exercise.svg';
 import Daily from '@/assets/icon/goal/daily.svg';
+import Exercise from '@/assets/icon/goal/exercise.svg';
 import Hobby from '@/assets/icon/goal/hobby.svg';
 import People from '@/assets/icon/goal/people.svg';
 import Study from '@/assets/icon/goal/study.svg';
 import Task from '@/assets/icon/goal/task.svg';
+import Plus from '@/assets/icon/plus2.svg';
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
+
 //import { useRouter } from "expo-router";
-
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+
+import { Link, usePathname, useRouter, useSegments } from 'expo-router';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
-
-
-
-import { useRouter, useSegments, usePathname, Link } from 'expo-router';
-
 
 /* ---- 캘린더 한글화 ---- */
 LocaleConfig.locales['ko'] = {
-    monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+    monthNames: [
+        '1월',
+        '2월',
+        '3월',
+        '4월',
+        '5월',
+        '6월',
+        '7월',
+        '8월',
+        '9월',
+        '10월',
+        '11월',
+        '12월',
+    ],
+    monthNamesShort: [
+        '1월',
+        '2월',
+        '3월',
+        '4월',
+        '5월',
+        '6월',
+        '7월',
+        '8월',
+        '9월',
+        '10월',
+        '11월',
+        '12월',
+    ],
+    dayNames: [
+        '일요일',
+        '월요일',
+        '화요일',
+        '수요일',
+        '목요일',
+        '금요일',
+        '토요일',
+    ],
     dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
     today: '오늘',
 };
@@ -33,10 +71,17 @@ LocaleConfig.defaultLocale = 'ko';
 const missionsByDate: Record<
     string,
     {
-        date: string; totalCount: number; completedCount: number; missions: Array<{
-            missionId: number; title: string; mission_start_time: string; mission_end_time: string;
-            status: 'FAILED' | 'COMPLETED' | 'NOT_STARTED'; category: 'exercise' | 'daily' | 'hobby' | 'people' | 'study' | 'task';
-        }>
+        date: string;
+        totalCount: number;
+        completedCount: number;
+        missions: Array<{
+            missionId: number;
+            title: string;
+            mission_start_time: string;
+            mission_end_time: string;
+            status: 'FAILED' | 'COMPLETED' | 'NOT_STARTED';
+            category: 'exercise' | 'daily' | 'hobby' | 'people' | 'study' | 'task';
+        }>;
     }
 > = {
     '2025-09-19': {
@@ -44,9 +89,30 @@ const missionsByDate: Record<
         totalCount: 3,
         completedCount: 2,
         missions: [
-            { missionId: 1, title: '아침 러닝하기', mission_start_time: '09:00', mission_end_time: '11:00', status: 'FAILED', category: 'exercise' },
-            { missionId: 2, title: '일상 체크', mission_start_time: '13:00', mission_end_time: '23:00', status: 'COMPLETED', category: 'daily' },
-            { missionId: 3, title: '스터디', mission_start_time: '16:00', mission_end_time: '18:00', status: 'COMPLETED', category: 'study' },
+            {
+                missionId: 1,
+                title: '아침 러닝하기',
+                mission_start_time: '09:00',
+                mission_end_time: '11:00',
+                status: 'FAILED',
+                category: 'exercise',
+            },
+            {
+                missionId: 2,
+                title: '일상 체크',
+                mission_start_time: '13:00',
+                mission_end_time: '23:00',
+                status: 'COMPLETED',
+                category: 'daily',
+            },
+            {
+                missionId: 3,
+                title: '스터디',
+                mission_start_time: '16:00',
+                mission_end_time: '18:00',
+                status: 'COMPLETED',
+                category: 'study',
+            },
         ],
     },
     // 예시로 하루 더
@@ -55,8 +121,22 @@ const missionsByDate: Record<
         totalCount: 2,
         completedCount: 1,
         missions: [
-            { missionId: 4, title: '아침 러닝하기', mission_start_time: '09:00', mission_end_time: '10:00', status: 'COMPLETED', category: 'exercise' },
-            { missionId: 5, title: '과제 정리', mission_start_time: '20:00', mission_end_time: '22:00', status: 'NOT_STARTED', category: 'task' },
+            {
+                missionId: 4,
+                title: '아침 러닝하기',
+                mission_start_time: '09:00',
+                mission_end_time: '10:00',
+                status: 'COMPLETED',
+                category: 'exercise',
+            },
+            {
+                missionId: 5,
+                title: '과제 정리',
+                mission_start_time: '20:00',
+                mission_end_time: '22:00',
+                status: 'NOT_STARTED',
+                category: 'task',
+            },
         ],
     },
 };
@@ -70,7 +150,6 @@ const formatKoreanDate = (iso: string) => {
 };
 
 const Calendar = () => {
-
     const segs = useSegments();
     const path = usePathname();
 
@@ -80,13 +159,22 @@ const Calendar = () => {
 
     const router = useRouter();
     const today = useMemo(() => new Date(), []);
-    const todayStr = useMemo(() => new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString().split('T')[0], [today]);
+    const todayStr = useMemo(
+        () =>
+            new Date(today.getFullYear(), today.getMonth(), today.getDate())
+                .toISOString()
+                .split('T')[0],
+        [today],
+    );
 
     // 처음엔 오늘 선택
     const [selectedDate, setSelectedDate] = useState<string>(todayStr);
 
     const missionList = missionsByDate[selectedDate]?.missions ?? [];
-    const headerLabel = useMemo(() => formatKoreanDate(selectedDate), [selectedDate]);
+    const headerLabel = useMemo(
+        () => formatKoreanDate(selectedDate),
+        [selectedDate],
+    );
 
     return (
         <ScrollView style={styles.container}>
@@ -153,11 +241,12 @@ const Calendar = () => {
                 <View style={styles.missionHeader}>
                     <Text style={Typo.label01}>{headerLabel}</Text>
 
-                    <TouchableOpacity style={styles.addButton}
-                        onPress={() => router.push("../addevent")}>
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => router.push('../addevent')}
+                    >
                         <Plus width={12} height={12} fill={Colors.gray600} />
                     </TouchableOpacity>
-
                 </View>
 
                 {missionList.length === 0 ? (
@@ -186,7 +275,9 @@ const Calendar = () => {
 
                             {/* 가운데 텍스트 */}
                             <View style={{ flex: 1 }}>
-                                <Text style={[Typo.label01, { marginBottom: 2 }]}>{mission.title}</Text>
+                                <Text style={[Typo.label01, { marginBottom: 2 }]}>
+                                    {mission.title}
+                                </Text>
                                 <Text style={[Typo.label03, { color: Colors.gray300 }]}>
                                     Sub Goal - 매일 꾸준히 운동하기
                                 </Text>
@@ -216,7 +307,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
     },
-    todayText: { fontFamily: 'Pretendard-Bold', }, // 오늘 bold
+    todayText: { fontFamily: 'Pretendard-Bold' }, // 오늘 bold
     daySelected: {},
 
     futureCircle: {
@@ -265,16 +356,15 @@ const styles = StyleSheet.create({
 
     missionCard: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         backgroundColor: Colors.gray0,
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,
     },
     iconWrapper: {
-        width: 20,
-        height: 40,
-        borderRadius: 20,
+        width: 28,
+        height: 28,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 15,
