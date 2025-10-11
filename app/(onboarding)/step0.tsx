@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AuthService } from '../../services/auth/authService';
 import { KakaoWebViewLogin } from '../../components/auth/KakaoWebViewLogin';
+import { useAuth } from '../../hooks/useAuth';
 //아이콘
 import KaKao from '../../assets/GUI/kakao.svg';
 import Logo from '../../assets/GUI/logo/logo_light.svg';
@@ -20,6 +21,7 @@ export default function ScreenStart() {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [showWebView, setShowWebView] = React.useState(false);
+  const { loginWithKakaoToken } = useAuth();
 
   const kakaoConfig = AuthService.getKakaoWebViewConfig();
 
@@ -29,7 +31,7 @@ export default function ScreenStart() {
     try {
       console.log('백엔드 로그인 시도 중...');
       // 카카오 액세스 토큰으로 백엔드 로그인
-      const authResponse = await AuthService.kakaoLogin(kakaoAccessToken);
+      const authResponse = await loginWithKakaoToken(kakaoAccessToken);
       console.log('백엔드 로그인 응답:', authResponse);
 
       if (authResponse.isSuccess) {
