@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "452804491031",
+    "project_id": "kangarootine-187b9",
+    "storage_bucket": "kangarootine-187b9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:452804491031:android:7d060b2f68c2f2229d2952",
+        "android_client_info": {
+          "package_name": "com.kangarootine.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1pQ84emLUwMqIAAumHb9WHibJwGxOINM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
