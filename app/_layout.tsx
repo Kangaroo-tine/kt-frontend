@@ -1,17 +1,18 @@
-import React, { useEffect } from 'react';
-import { useColorScheme } from '../hooks/useColorScheme';
-
 //전역 라우팅 제어, 여기서 어떤 화면으로 갈지 분기
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from '@react-navigation/native';
+import React, { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
+
+import { AuthProvider } from '../hooks/useAuth';
+import { useColorScheme } from '../hooks/useColorScheme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,9 +35,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Slot />
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Slot />
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

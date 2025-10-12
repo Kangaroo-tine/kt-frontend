@@ -11,7 +11,7 @@ import { Typo } from '../../constants/Typo';
 
 export default function ScreenCode() {
   const router = useRouter();
-  const { mainGoal, subGoals } = useLocalSearchParams();
+  const { mainGoal, subGoals, categoryValue, goalDraftId } = useLocalSearchParams();
 
   // Parse the subGoals from JSON string
   const parsedSubGoals = subGoals ? JSON.parse(subGoals as string) : [];

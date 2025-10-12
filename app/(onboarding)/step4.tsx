@@ -22,7 +22,7 @@ import { Typo } from '../../constants/Typo';
 
 export default function ScreenCode() {
   const router = useRouter();
-  const { goalText: mainGoal } = useLocalSearchParams();
+  const { goalText: mainGoal, categoryValue, goalDraftId } = useLocalSearchParams();
   const [subGoalText, setSubGoalText] = useState('');
   const [selectedSubGoals, setSelectedSubGoals] = useState<string[]>([]);
   const [userAddedGoals, setUserAddedGoals] = useState<string[]>([]);
@@ -221,13 +221,20 @@ export default function ScreenCode() {
         text="다음"
         onPress={() => {
           const allSelectedGoals = [...selectedSubGoals, ...userAddedGoals];
-          router.push(
-            `/step5?mainGoal=${encodeURIComponent(
-              (mainGoal as string) || '',
-            )}&subGoals=${encodeURIComponent(
-              JSON.stringify(allSelectedGoals),
-            )}`,
-          );
+          const params = new URLSearchParams({
+            mainGoal: ((mainGoal as string) || '').toString(),
+            subGoals: JSON.stringify(allSelectedGoals),
+          });
+
+          if (categoryValue) {
+            params.append('categoryValue', (categoryValue as string) || '');
+          }
+
+          if (goalDraftId) {
+            params.append('goalDraftId', (goalDraftId as string) || '');
+          }
+
+          router.push(`/step5?${params.toString()}`);
         }}
         disabled={!isNextButtonActive}
       />

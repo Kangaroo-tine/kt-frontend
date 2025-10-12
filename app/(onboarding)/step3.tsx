@@ -13,7 +13,7 @@ import { Typo } from '../../constants/Typo';
 
 export default function ScreenCode() {
   const router = useRouter();
-  const { category } = useLocalSearchParams();
+  const { category, categoryValue, goalDraftId } = useLocalSearchParams();
   const [goalText, setGoalText] = useState('');
 
   return (
@@ -70,13 +70,22 @@ export default function ScreenCode() {
 
       <StepButton
         text="다음"
-        onPress={() =>
-          router.push(
-            `/step4?category=${encodeURIComponent(
-              (category as string) || '',
-            )}&goalText=${encodeURIComponent(goalText)}`,
-          )
-        }
+        onPress={() => {
+          const params = new URLSearchParams({
+            category: ((category as string) || '').toString(),
+            goalText,
+          });
+
+          if (categoryValue) {
+            params.append('categoryValue', (categoryValue as string) || '');
+          }
+
+          if (goalDraftId) {
+            params.append('goalDraftId', (goalDraftId as string) || '');
+          }
+
+          router.push(`/step4?${params.toString()}`);
+        }}
         disabled={!goalText}
       />
     </>
