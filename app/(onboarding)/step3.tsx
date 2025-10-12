@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -10,11 +10,52 @@ import OnboardingLayout from '../../components/layout/OnboardingLayout';
 import StepButton from '../../components/shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
+import { updateGoalDraftTitle } from '../../services/goal/goalService';
 
 export default function ScreenCode() {
   const router = useRouter();
   const { category, categoryValue, goalDraftId } = useLocalSearchParams();
   const [goalText, setGoalText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const categoryLabel = Array.isArray(category) ? category[0] : category;
+  const categoryValueParam = Array.isArray(categoryValue) ? categoryValue[0] : categoryValue;
+  const goalDraftIdParam = Array.isArray(goalDraftId) ? goalDraftId[0] : goalDraftId;
+
+  const handleNext = async () => {
+    const trimmedGoal = goalText.trim();
+    if (!trimmedGoal || isSubmitting) {
+      return;
+    }
+
+    if (!goalDraftIdParam) {
+      Alert.alert('오류', '목표 초안 정보가 없습니다. 이전 단계부터 다시 진행해주세요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await updateGoalDraftTitle(goalDraftIdParam, { title: trimmedGoal });
+
+      const params = new URLSearchParams({
+        category: (categoryLabel || '').toString(),
+        goalText: trimmedGoal,
+      });
+
+      if (categoryValueParam) {
+        params.append('categoryValue', (categoryValueParam || '').toString());
+      }
+
+      params.append('goalDraftId', goalDraftIdParam.toString());
+
+      router.push(`/step4?${params.toString()}`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : '목표 제목 저장 중 문제가 발생했습니다.';
+      Alert.alert('목표 저장 실패', message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -27,7 +68,7 @@ export default function ScreenCode() {
         <View style={styles.categoryContainer}>
           <View style={styles.categoryBox}>
             <Text style={[Typo.heading03, { color: Colors.gray900 }]}>
-              {category || '선택된 카테고리'}
+              {categoryLabel || '선택된 카테고리'}
             </Text>
           </View>
         </View>
@@ -68,26 +109,7 @@ export default function ScreenCode() {
         </View>
       </OnboardingLayout>
 
-      <StepButton
-        text="다음"
-        onPress={() => {
-          const params = new URLSearchParams({
-            category: ((category as string) || '').toString(),
-            goalText,
-          });
-
-          if (categoryValue) {
-            params.append('categoryValue', (categoryValue as string) || '');
-          }
-
-          if (goalDraftId) {
-            params.append('goalDraftId', (goalDraftId as string) || '');
-          }
-
-          router.push(`/step4?${params.toString()}`);
-        }}
-        disabled={!goalText}
-      />
+      <StepButton text="다음" onPress={handleNext} disabled={!goalText.trim() || isSubmitting} />
     </>
   );
 }

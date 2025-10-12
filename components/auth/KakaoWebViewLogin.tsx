@@ -23,7 +23,15 @@ export const KakaoWebViewLogin: React.FC<KakaoWebViewLoginProps> = ({
   const [loading, setLoading] = useState(true);
   const isProcessingRef = useRef(false); // 중복 처리 방지
 
-  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=profile_nickname,profile_image,account_email`;
+  const authParams = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'profile_nickname,profile_image,account_email',
+    through_talk: 'false', // 카카오톡 앱 대신 웹 브라우저 로그인 고정
+  });
+
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?${authParams.toString()}`;
 
   const handleShouldStartLoadWithRequest = (request: any) => {
     const { url } = request;

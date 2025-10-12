@@ -87,7 +87,8 @@ export default function ScreenPhone() {
     try {
       setIsSubmitting(true);
       const response = await createGoalDraft({ category: selectedCategory });
-      const goalDraftId = response?.result?.goalDraftId;
+      const goalDraftId =
+        response?.result?.goalDraftId ?? response?.result?.draftGoalId;
 
       const params = new URLSearchParams({
         category: selectedOption.label,

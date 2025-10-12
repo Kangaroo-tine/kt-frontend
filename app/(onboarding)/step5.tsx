@@ -1,4 +1,6 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -8,13 +10,40 @@ import OnboardingLayout from '../../components/layout/OnboardingLayout';
 import StepButton from '../../components/shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
+import { commitGoalDraft } from '../../services/goal/goalService';
 
 export default function ScreenCode() {
   const router = useRouter();
   const { mainGoal, subGoals, categoryValue, goalDraftId } = useLocalSearchParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Parse the subGoals from JSON string
   const parsedSubGoals = subGoals ? JSON.parse(subGoals as string) : [];
+  const goalDraftIdParam = Array.isArray(goalDraftId) ? goalDraftId[0] : goalDraftId;
+
+  const handleCommit = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    if (!goalDraftIdParam) {
+      Alert.alert('오류', '목표 초안 정보가 없습니다. 이전 단계부터 다시 진행해주세요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await commitGoalDraft(goalDraftIdParam);
+      console.log('[Onboarding Step5] commit response:', JSON.stringify(response));
+      router.push('/step6');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : '목표를 확정하는 중 문제가 발생했습니다.';
+      Alert.alert('확정 실패', message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -73,8 +102,8 @@ export default function ScreenCode() {
 
       <StepButton
         text="캥거루틴 하러가기"
-        onPress={() => router.push('/step6')}
-        disabled={false}
+        onPress={handleCommit}
+        disabled={isSubmitting || !goalDraftIdParam}
       />
     </>
   );
