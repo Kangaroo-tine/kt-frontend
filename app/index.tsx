@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 
 export default function Index() {
-  useEffect(() => {
+  /*useEffect(() => {
     // 알림 권한 요청
     const requestPermission = async () => {
       const authStatus = await messaging().requestPermission();
@@ -29,7 +29,7 @@ export default function Index() {
     requestPermission();
     getToken();
     return unsubscribe;
-  }, []);
+  }, []); */
 
   return <Redirect href="/(onboarding)/step0" />;
 }
