@@ -22,7 +22,11 @@ expo-env.d.ts
 # TypeScript
 *.tsbuildinfo
 
-# Android/iOS native
+# Android/iOS native folders (entire folders)
+android/
+ios/
+
+# Android/iOS certificates and keys
 *.jks
 *.keystore
 *.p8
@@ -30,12 +34,6 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 *.orig.*
-.android/
-.kotlin/
-ios/Pods/
-android/.gradle/
-android/app/build/
-ios/build/
 
 # Env
 .env
