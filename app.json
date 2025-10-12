@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "Kangaroo-tine",
-    "slug": "Kangaroo-tine",
+    "entryPoint": "./index.js",
+    "name": "Kangarootine",
+    "slug": "Kangarootine",
     "version": "1.0.0",
     "main": "expo-router/entry",
     "orientation": "portrait",
@@ -23,7 +24,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.kangarootine.app"
+      "package": "com.kangarootine.app",
+      "googleServicesFile": "android/app/google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -50,8 +52,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "2bbe094e-c93d-4ba3-931f-1a8486cda7ca"
+        "projectId": "5824e997-bdc0-49be-b04e-f571f821db6c"
       }
-    }
+    },
+    "owner": "eunhyekimyeah"
   }
 }
