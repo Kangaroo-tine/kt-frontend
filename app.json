@@ -1,6 +1,5 @@
 {
   "expo": {
-    "entryPoint": "./index.js",
     "name": "Kangarootine",
     "slug": "Kangarootine",
     "version": "1.0.0",
@@ -43,6 +42,8 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      "@react-native-firebase/app",   
+      "@react-native-firebase/messaging",
       "expo-font",
       "expo-web-browser"
     ],
