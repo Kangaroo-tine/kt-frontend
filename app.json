@@ -50,9 +50,8 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
       "eas": {
-        "projectId": "5824e997-bdc0-49be-b04e-f571f821db6c"
+        "projectId": "2c0e0378-fbc6-4ceb-97d2-5143cac93238"
       }
     },
     "owner": "eunhyekimyeah"
