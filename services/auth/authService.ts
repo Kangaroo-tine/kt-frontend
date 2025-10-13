@@ -17,8 +17,15 @@ export class AuthService {
    * 웹뷰에서 카카오 로그인을 위한 설정
    */
   static getKakaoWebViewConfig() {
+    const clientId = EXPO_PUBLIC_KAKAO_CLIENT_ID || 'YOUR_KAKAO_CLIENT_ID';
+
+    console.log('[AuthService] 카카오 웹뷰 설정');
+    console.log('[AuthService] EXPO_PUBLIC_KAKAO_CLIENT_ID:', EXPO_PUBLIC_KAKAO_CLIENT_ID);
+    console.log('[AuthService] 사용할 clientId:', clientId);
+    console.log('[AuthService] 폴백 사용 여부:', !EXPO_PUBLIC_KAKAO_CLIENT_ID);
+
     return {
-      clientId: EXPO_PUBLIC_KAKAO_CLIENT_ID || 'YOUR_KAKAO_CLIENT_ID',
+      clientId: clientId,
       redirectUri: 'https://oortmealy.github.io/kakao-callback', // GitHub Pages 콜백 페이지
     };
   }

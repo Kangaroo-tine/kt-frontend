@@ -39,8 +39,7 @@ ios/build/
 
 # Env
 .env
-.env.*
-.env*.local
+
 
 # Local test/example files
 app-example
