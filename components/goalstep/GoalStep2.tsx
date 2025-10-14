@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 
 import Back from '../../assets/icon/arrow/back_arrow.svg';
@@ -8,15 +9,49 @@ import OnboardingLayout from '../layout/OnboardingLayout';
 import StepButton from '../shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
+import { updateGoalDraftTitle } from '../../services/goal/goalService';
 
 type Props = {
-  category: string;
+  categoryLabel?: string;
+  goalDraftId?: string;
   onNext: (data: { mainGoal: string }) => void;
   onBack: () => void;
 };
 
-export default function GoalStep2({ category, onNext, onBack }: Props) {
+export default function GoalStep2({
+  categoryLabel,
+  goalDraftId,
+  onNext,
+  onBack,
+}: Props) {
   const [goalText, setGoalText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNext = async () => {
+    const trimmedGoal = goalText.trim();
+    if (!trimmedGoal || isSubmitting) {
+      return;
+    }
+
+    if (!goalDraftId) {
+      Alert.alert('오류', '목표 초안 정보가 없습니다. 처음 단계부터 다시 진행해주세요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await updateGoalDraftTitle(goalDraftId, { title: trimmedGoal });
+      onNext({ mainGoal: trimmedGoal });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : '목표 제목을 저장하는 중 문제가 발생했습니다.';
+      Alert.alert('저장 실패', message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -34,7 +69,7 @@ export default function GoalStep2({ category, onNext, onBack }: Props) {
         <View style={styles.categoryContainer}>
           <View style={styles.categoryBox}>
             <Text style={[Typo.heading03, { color: Colors.gray900 }]}>
-              {category || '선택된 카테고리'}
+              {categoryLabel || '선택된 카테고리'}
             </Text>
           </View>
         </View>
@@ -77,8 +112,8 @@ export default function GoalStep2({ category, onNext, onBack }: Props) {
 
       <StepButton
         text="다음"
-        onPress={() => goalText && onNext({ mainGoal: goalText })}
-        disabled={!goalText}
+        onPress={handleNext}
+        disabled={!goalText.trim() || isSubmitting}
       />
     </>
   );
