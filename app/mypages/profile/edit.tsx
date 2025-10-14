@@ -12,6 +12,7 @@ import { Typo } from '@/constants/Typo';
 import BackArrow from '@/assets/icon/arrow/back_arrow.svg';
 import ProfilePhoto from '@/assets/temp/temp_profile_edit.svg';
 import CloseRedIcon from '@/assets/icon/x_icon/red.svg';
+import { AuthService } from '@/services/auth/authService';
 
 //커스텀 토스트
 function CustomToast({ message }: { message: string }) {
@@ -56,6 +57,7 @@ export default function ProfileEdit() {
   const [emailActive, setEmailActive] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   //올바른 이메일 입력 형식
   const validateEmail = (text: string) => {
@@ -63,8 +65,14 @@ export default function ProfileEdit() {
     return regex.test(text);
   };
   //완료 버튼 핸들러
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    if (isSubmitting) {
+      console.log('[ProfileEdit] Submission already in progress');
+      return;
+    }
+
     if (email && !validateEmail(email)) {
+      console.log('[ProfileEdit] Invalid email format detected:', email);
       setEmailError(true);
       setToastMessage(""); // 기존 비우고
       setTimeout(() => {
@@ -72,7 +80,49 @@ export default function ProfileEdit() {
       return;
     }
     setEmailError(false);
-    setToastMessage("프로필이 변경되었습니다");
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    try {
+      setIsSubmitting(true);
+      console.log('[ProfileEdit] Sending profile update request');
+      const response = await AuthService.updateProfile({
+        nickname: trimmedName || null,
+        email: trimmedEmail || null,
+        profileImageUrl: null,
+      });
+      console.log('[ProfileEdit] Profile update response:', JSON.stringify(response));
+
+      const updatedNickname = response?.result?.nickname;
+      const updatedEmail = response?.result?.email;
+
+      if (updatedNickname !== undefined) {
+        setName(updatedNickname);
+      }
+
+      if (updatedEmail !== undefined) {
+        setEmail(updatedEmail);
+      }
+
+      setToastMessage("");
+      setTimeout(() => {
+        setToastMessage(response?.message || "프로필이 변경되었습니다");
+      }, 100);
+      Keyboard.dismiss();
+    } catch (error) {
+      console.error('[ProfileEdit] Profile update failed:', error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "프로필 수정 중 문제가 발생했습니다.";
+      setToastMessage("");
+      setTimeout(() => {
+        setToastMessage(message);
+      }, 100);
+    } finally {
+      console.log('[ProfileEdit] Submission finished');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -89,7 +139,7 @@ export default function ProfileEdit() {
           <View style= {styles.completeBtnWrapper}>
             <CustomButton
               label="완료"
-              active={!!name || !!email}
+              active={!isSubmitting && (!!name || !!email)}
               onPress={handleComplete}
             />
           </View>
