@@ -1,5 +1,5 @@
 import React , { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import { Alert, View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -15,6 +15,7 @@ import WithdrawIllust from '@/assets/GUI/withdraw_account.svg';
 
 //컴포넌트
 import ReusableModal from "@/components/shared/ReusableModal"; 
+import { AuthService } from '@/services/auth/authService';
 
 const REASONS: {
   id: string;
@@ -33,10 +34,43 @@ export default function Withdraw() {
 
   //탈퇴하기 모달
   const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
   //모달에서 탈퇴하기 버튼 눌렀을 때 핸들러
-  const handleWithdraw = () => {
-    setWithdrawModalVisible(false) //수정!!!!!!!!!!!!!!======================
-    router.back();
+  const handleWithdraw = async () => {
+    if (isWithdrawing) {
+      console.log('[Withdraw] Withdrawal already in progress');
+      return;
+    }
+
+    try {
+      setIsWithdrawing(true);
+      console.log('[Withdraw] Sending withdraw request');
+      const response = await AuthService.withdraw();
+      console.log('[Withdraw] withdraw response:', JSON.stringify(response));
+
+      await AuthService.logout();
+      setWithdrawModalVisible(false);
+
+      Alert.alert(
+        '탈퇴 완료',
+        response?.message || '탈퇴가 성공적으로 처리되었습니다.',
+        [
+          {
+            text: '확인',
+            onPress: () => router.replace('/(onboarding)/step0'),
+          },
+        ],
+      );
+    } catch (error) {
+      console.error('[Withdraw] withdraw failed:', error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : '탈퇴 처리 중 문제가 발생했습니다.';
+      Alert.alert('탈퇴 실패', message);
+    } finally {
+      setIsWithdrawing(false);
+    }
   };
 
   // 이유 선택 상태
@@ -158,7 +192,11 @@ export default function Withdraw() {
         cancelText="탈퇴하기"
         confirmText="돌아가기"
         onCancel={handleWithdraw}  // → 탈퇴핸들러
-        onConfirm={() => setWithdrawModalVisible(false)} // → 돌아가기 누르면 모달 닫힘
+        onConfirm={() => {
+          if (!isWithdrawing) {
+            setWithdrawModalVisible(false);
+          }
+        }} // → 돌아가기 누르면 모달 닫힘
       />
     </View>
   );

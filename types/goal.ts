@@ -84,6 +84,7 @@ export interface SelectedSubGoalsResponse {
 
 export interface CommitGoalDraftResponseItem {
   goalId?: number | string;
+  draftGoalId?: number | string;
   title?: string;
   category?: GoalCategory;
   subgoals?: {

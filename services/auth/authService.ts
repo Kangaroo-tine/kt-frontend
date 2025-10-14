@@ -3,7 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { API_BASE_URL, EXPO_PUBLIC_KAKAO_CLIENT_ID } from '@env';
 
-import type { AuthResponse, KakaoLoginRequest, RefreshTokenRequest } from '../../types/auth';
+import type {
+  AuthResponse,
+  KakaoLoginRequest,
+  RefreshTokenRequest,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
+  WithdrawResponse,
+} from '../../types/auth';
 
 const AUTH_KEYS = {
   ACCESS_TOKEN: 'accessToken',
@@ -153,5 +160,117 @@ export class AuthService {
   static async isAuthenticated(): Promise<boolean> {
     const accessToken = await this.getAccessToken();
     return accessToken !== null;
+  }
+
+  /**
+   * 프로필 수정
+   */
+  static async updateProfile(
+    payload: UpdateProfileRequest,
+  ): Promise<UpdateProfileResponse> {
+    console.log('[AuthService] updateProfile payload:', JSON.stringify(payload));
+    const accessToken = await this.getAccessToken();
+
+    if (!accessToken) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    console.log('[AuthService] updateProfile request URL:', `${this.baseUrl}/auth/profile`);
+    const response = await fetch(`${this.baseUrl}/auth/profile`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    console.log(
+      '[AuthService] updateProfile response status:',
+      response.status,
+      response.statusText,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AuthService] updateProfile error body:', errorText);
+      throw new Error(
+        `프로필 수정에 실패했습니다: ${response.status} ${errorText}`,
+      );
+    }
+
+    if (response.status === 204) {
+      console.log('[AuthService] updateProfile response: 204 No Content');
+      return {};
+    }
+
+    try {
+      const data = (await response.json()) as UpdateProfileResponse;
+      console.log(
+        '[AuthService] updateProfile parsed response:',
+        JSON.stringify(data),
+      );
+      return data;
+    } catch (error) {
+      console.error('[AuthService] updateProfile parse error:', error);
+      throw new Error(
+        `프로필 수정 응답을 해석할 수 없습니다: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
+    }
+  }
+
+  /**
+   * 회원 탈퇴
+   */
+  static async withdraw(): Promise<WithdrawResponse> {
+    const accessToken = await this.getAccessToken();
+
+    if (!accessToken) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    const url = `${this.baseUrl}/auth/withdraw`;
+    console.log('[AuthService] withdraw request URL:', url);
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    console.log(
+      '[AuthService] withdraw response status:',
+      response.status,
+      response.statusText,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AuthService] withdraw error body:', errorText);
+      throw new Error(
+        `회원 탈퇴에 실패했습니다: ${response.status} ${errorText}`,
+      );
+    }
+
+    if (response.status === 204) {
+      console.log('[AuthService] withdraw response: 204 No Content');
+      return {};
+    }
+
+    try {
+      const data = (await response.json()) as WithdrawResponse;
+      console.log('[AuthService] withdraw parsed response:', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.error('[AuthService] withdraw parse error:', error);
+      throw new Error(
+        `회원 탈퇴 응답을 해석할 수 없습니다: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
+    }
   }
 }

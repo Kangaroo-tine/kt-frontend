@@ -1,4 +1,6 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 
 import Back from '../../assets/icon/arrow/back_arrow.svg';
@@ -8,15 +10,60 @@ import OnboardingLayout from '../layout/OnboardingLayout';
 import StepButton from '../shared/StepButton';
 import { Colors } from '../../constants/Colors';
 import { Typo } from '../../constants/Typo';
+import { commitGoalDraft } from '../../services/goal/goalService';
+import type { CommitGoalDraftResponse } from '../../types/goal';
 
 type Props = {
   mainGoal: string;
   subGoals: string[];
-  onNext: (data: {}) => void;
+  goalDraftId?: string;
+  onNext: (data: {
+    commitResponse?: CommitGoalDraftResponse;
+    committedGoalId?: string | number;
+  }) => void;
   onBack: () => void;
 };
 
-export default function GoalStep4({ mainGoal, subGoals, onNext, onBack }: Props) {
+export default function GoalStep4({
+  mainGoal,
+  subGoals,
+  goalDraftId,
+  onNext,
+  onBack,
+}: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCommit = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    if (!goalDraftId) {
+      Alert.alert('오류', '목표 초안 정보가 없습니다. 처음 단계부터 다시 진행해주세요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await commitGoalDraft(goalDraftId);
+      const committedId =
+        response?.result?.goalId ?? response?.result?.draftGoalId;
+
+      onNext({
+        commitResponse: response,
+        committedGoalId: committedId,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : '목표를 확정하는 중 문제가 발생했습니다.';
+      Alert.alert('확정 실패', message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
       <OnboardingLayout
@@ -78,9 +125,9 @@ export default function GoalStep4({ mainGoal, subGoals, onNext, onBack }: Props)
       </OnboardingLayout>
 
       <StepButton
-        text="다음"
-        onPress={() => onNext({})}
-        disabled={false}
+        text="캥거루틴 하러가기"
+        onPress={handleCommit}
+        disabled={isSubmitting || !goalDraftId}
       />
     </>
   );

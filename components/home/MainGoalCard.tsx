@@ -26,6 +26,7 @@ type MainGoalCardProps = {
   category: 'daily' | 'health' | 'hobby' | 'people' | 'study' | 'task';
   completed: number; // 완료된 서브골 개수
   total: number;     // 전체 서브골 개수
+  progress?: number; // 서버에서 내려주는 진행률 (0~1 기준)
   selected: boolean;
   onPress: () => void;
 };
@@ -40,12 +41,18 @@ export default function MainGoalCard({
   category,
   completed,
   total,
+  progress,
   selected,
   onPress,
 }: MainGoalCardProps) {
 
-  const progress = total > 0 ? Math.min(1, Math.max(0, completed / total)) : 0;
-  const dashOffset = CIRC * (1 - progress);
+  const resolvedProgress =
+    typeof progress === 'number'
+      ? Math.min(1, Math.max(0, progress))
+      : total > 0
+        ? Math.min(1, Math.max(0, completed / total))
+        : 0;
+  const dashOffset = CIRC * (1 - resolvedProgress);
 
   //메인골 카테고리 별 아이콘
   const renderCategoryIcon = () => {
