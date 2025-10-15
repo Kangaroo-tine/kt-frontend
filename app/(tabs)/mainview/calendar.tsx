@@ -9,8 +9,7 @@ import Plus from '@/assets/icon/plus2.svg';
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
 
-//import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
     ScrollView,
@@ -20,8 +19,11 @@ import {
     View,
 } from 'react-native';
 
-import { Link, usePathname, useRouter, useSegments } from 'expo-router';
+import { usePathname, useRouter, useSegments } from 'expo-router';
 import { LocaleConfig, Calendar as RNCalendar } from 'react-native-calendars';
+
+import { fetchMonthScheduleAvailability, fetchSchedulesByDate } from '@/services/schedule/scheduleService';
+import type { ScheduleListItem } from '@/types/schedule';
 
 /* ---- 캘린더 한글화 ---- */
 LocaleConfig.locales['ko'] = {
@@ -67,86 +69,61 @@ LocaleConfig.locales['ko'] = {
 };
 LocaleConfig.defaultLocale = 'ko';
 
-/* ---- 날짜별 미션 더미(예시) ---- */
-const missionsByDate: Record<
-    string,
-    {
-        date: string;
-        totalCount: number;
-        completedCount: number;
-        missions: Array<{
-            missionId: number;
-            title: string;
-            mission_start_time: string;
-            mission_end_time: string;
-            status: 'FAILED' | 'COMPLETED' | 'NOT_STARTED';
-            category: 'exercise' | 'daily' | 'hobby' | 'people' | 'study' | 'task';
-        }>;
-    }
-> = {
-    '2025-09-19': {
-        date: '2025-09-19',
-        totalCount: 3,
-        completedCount: 2,
-        missions: [
-            {
-                missionId: 1,
-                title: '아침 러닝하기',
-                mission_start_time: '09:00',
-                mission_end_time: '11:00',
-                status: 'FAILED',
-                category: 'exercise',
-            },
-            {
-                missionId: 2,
-                title: '일상 체크',
-                mission_start_time: '13:00',
-                mission_end_time: '23:00',
-                status: 'COMPLETED',
-                category: 'daily',
-            },
-            {
-                missionId: 3,
-                title: '스터디',
-                mission_start_time: '16:00',
-                mission_end_time: '18:00',
-                status: 'COMPLETED',
-                category: 'study',
-            },
-        ],
-    },
-    // 예시로 하루 더
-    '2025-09-20': {
-        date: '2025-09-20',
-        totalCount: 2,
-        completedCount: 1,
-        missions: [
-            {
-                missionId: 4,
-                title: '아침 러닝하기',
-                mission_start_time: '09:00',
-                mission_end_time: '10:00',
-                status: 'COMPLETED',
-                category: 'exercise',
-            },
-            {
-                missionId: 5,
-                title: '과제 정리',
-                mission_start_time: '20:00',
-                mission_end_time: '22:00',
-                status: 'NOT_STARTED',
-                category: 'task',
-            },
-        ],
-    },
-};
-
 /* ---- 유틸: YYYY-MM-DD → “n일 요일” ---- */
 const formatKoreanDate = (iso: string) => {
     const [y, m, d] = iso.split('-').map(Number);
     const dt = new Date(y, m - 1, d); // 로컬 기준 안전 파싱
     const days = ['일', '월', '화', '수', '목', '금', '토'];
     return `${dt.getDate()}일 ${days[dt.getDay()]}요일`;
+};
+
+type MissionCategory = 'exercise' | 'daily' | 'hobby' | 'people' | 'study' | 'task';
+
+const mapScheduleCategory = (category?: string | null): MissionCategory | undefined => {
+    if (!category) {
+        return undefined;
+    }
+    const normalized = category.toLowerCase();
+    switch (normalized) {
+        case 'exercise':
+            return 'exercise';
+        case 'life':
+        case 'daily':
+            return 'daily';
+        case 'hobby':
+        case 'self_development':
+            return 'hobby';
+        case 'people':
+        case 'relationship':
+            return 'people';
+        case 'study':
+        case 'learning':
+            return 'study';
+        case 'task':
+        case 'assignment':
+            return 'task';
+        default:
+            return undefined;
+    }
+};
+
+const extractTime = (value?: string | null): string => {
+    if (!value) {
+        return '';
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return '';
+    }
+    const normalized = trimmed.includes('T') ? trimmed : trimmed.replace(' ', 'T');
+    const parsed = new Date(normalized);
+    if (!Number.isNaN(parsed.getTime())) {
+        const hours = parsed.getHours().toString().padStart(2, '0');
+        const minutes = parsed.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    const match = trimmed.match(/(\d{2}:\d{2})/);
+    return match ? match[1] : trimmed;
 };
 
 const Calendar = () => {
@@ -169,8 +146,153 @@ const Calendar = () => {
 
     // 처음엔 오늘 선택
     const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+    const [schedules, setSchedules] = useState<ScheduleListItem[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [visibleMonth, setVisibleMonth] = useState<{ year: number; month: number }>({
+        year: today.getFullYear(),
+        month: today.getMonth() + 1,
+    });
+    const [monthAvailability, setMonthAvailability] = useState<Record<string, boolean>>({});
+    const [monthError, setMonthError] = useState<string | null>(null);
 
-    const missionList = missionsByDate[selectedDate]?.missions ?? [];
+    const updateVisibleMonth = useCallback((year: number, month: number) => {
+        setVisibleMonth((prev) => {
+            if (prev.year === year && prev.month === month) {
+                return prev;
+            }
+            console.log('[Calendar] Visible month changed:', year, month);
+            return { year, month };
+        });
+    }, []);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadSchedules = async () => {
+            if (!selectedDate) {
+                return;
+            }
+
+            console.log('[Calendar] Fetching schedules for date:', selectedDate);
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const response = await fetchSchedulesByDate(selectedDate);
+                if (!isMounted) {
+                    return;
+                }
+
+                const items = Array.isArray(response?.result) ? response.result : [];
+                console.log(
+                    '[Calendar] Schedules fetched:',
+                    JSON.stringify(items),
+                );
+                setSchedules(items);
+            } catch (err) {
+                if (!isMounted) {
+                    return;
+                }
+                console.error(
+                    '[Calendar] Failed to fetch schedules:',
+                    err,
+                );
+                const message =
+                    err instanceof Error
+                        ? err.message
+                        : '일정 정보를 불러오지 못했습니다.';
+                setError(message);
+                setSchedules([]);
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        loadSchedules();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [selectedDate]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadMonthAvailability = async () => {
+            console.log(
+                '[Calendar] Fetching month availability:',
+                visibleMonth.year,
+                visibleMonth.month,
+            );
+            try {
+                const response = await fetchMonthScheduleAvailability(
+                    visibleMonth.year,
+                    visibleMonth.month,
+                );
+                if (!isMounted) {
+                    return;
+                }
+                const items = Array.isArray(response?.result) ? response.result : [];
+                console.log(
+                    '[Calendar] Month availability fetched:',
+                    JSON.stringify(items),
+                );
+
+                const map: Record<string, boolean> = {};
+                items.forEach((item) => {
+                    if (item?.date) {
+                        map[item.date] = !!item.hasSchedule;
+                    }
+                });
+                setMonthAvailability(map);
+                setMonthError(null);
+            } catch (err) {
+                if (!isMounted) {
+                    return;
+                }
+                console.error('[Calendar] Failed to fetch month availability:', err);
+                const message =
+                    err instanceof Error
+                        ? err.message
+                        : '월간 일정 정보를 불러오지 못했습니다.';
+                setMonthError(message);
+                setMonthAvailability({});
+            }
+        };
+
+        loadMonthAvailability();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [visibleMonth]);
+
+    const missionList = useMemo(
+        () =>
+            schedules.map((schedule) => {
+                const category = mapScheduleCategory(schedule.goal?.category);
+                const fallbackId = `${
+                    schedule.date ?? 'schedule'
+                }-${schedule.goal?.goalTitle ?? ''}-${schedule.startTime ?? ''}-${schedule.endTime ?? ''}`;
+                const subgoalTitle = schedule.subgoal?.subgoalTitle ?? schedule.subgoal?.title ?? '';
+                return {
+                    id: schedule.scheduleId ?? fallbackId,
+                    title:
+                        schedule.title ??
+                        schedule.goal?.goalTitle ??
+                        '무제 일정',
+                    subTitle: subgoalTitle ? `Sub-goal ${subgoalTitle}` : '',
+                    startTime: extractTime(schedule.startTime),
+                    endTime: extractTime(schedule.endTime),
+                    category,
+                };
+            }),
+        [schedules],
+    );
+
     const headerLabel = useMemo(
         () => formatKoreanDate(selectedDate),
         [selectedDate],
@@ -179,11 +301,18 @@ const Calendar = () => {
     return (
         <ScrollView style={styles.container}>
             <RNCalendar
+                current={selectedDate}
                 firstDay={0}
                 hideArrows
                 enableSwipeMonths
                 style={{ marginTop: 22, paddingHorizontal: 40 }}
-                onDayPress={(d) => setSelectedDate(d.dateString)}
+                onDayPress={(d) => {
+                    setSelectedDate(d.dateString);
+                    updateVisibleMonth(d.year, d.month);
+                }}
+                onMonthChange={(date) => {
+                    updateVisibleMonth(date.year, date.month);
+                }}
                 renderHeader={(date) => {
                     const [year, month] = date.toString('yyyy MM').split(' ');
                     return (
@@ -200,6 +329,7 @@ const Calendar = () => {
                     const isToday = date.dateString === todayStr;
                     const isSelected = date.dateString === selectedDate;
                     const isDisabled = state === 'disabled';
+                    const hasSchedule = !!monthAvailability[date.dateString];
                     const isFuture = date.dateString > todayStr;
 
                     return (
@@ -224,10 +354,10 @@ const Calendar = () => {
                                 </Text>
 
                                 <View style={{ marginTop: 8 }}>
-                                    {isFuture ? (
-                                        <View style={styles.futureCircle} />
-                                    ) : (
+                                    {hasSchedule ? (
                                         <Target width={24} height={24} />
+                                    ) : (
+                                        <View style={[styles.futureCircle, isFuture && styles.futureCircleFuture]} />
                                     )}
                                 </View>
                             </View>
@@ -249,13 +379,25 @@ const Calendar = () => {
                     </TouchableOpacity>
                 </View>
 
-                {missionList.length === 0 ? (
+                {isLoading ? (
+                    <Text style={[Typo.label03, { color: Colors.gray300 }]}>
+                        일정을 불러오는 중이에요...
+                    </Text>
+                ) : error ? (
+                    <Text style={[Typo.label03, { color: Colors.gray300 }]}>
+                        {error}
+                    </Text>
+                ) : monthError ? (
+                    <Text style={[Typo.label03, { color: Colors.gray300 }]}>
+                        {monthError}
+                    </Text>
+                ) : missionList.length === 0 ? (
                     <Text style={[Typo.label03, { color: Colors.gray400 }]}>
                         이 날짜에 등록된 미션이 없어요.
                     </Text>
                 ) : (
                     missionList.map((mission) => (
-                        <View key={mission.missionId} style={styles.missionCard}>
+                        <View key={String(mission.id)} style={styles.missionCard}>
                             {/* 왼쪽 아이콘 */}
                             <View style={styles.iconWrapper}>
                                 {mission.category === 'exercise' ? (
@@ -278,14 +420,17 @@ const Calendar = () => {
                                 <Text style={[Typo.label01, { marginBottom: 2 }]}>
                                     {mission.title}
                                 </Text>
-                                <Text style={[Typo.label03, { color: Colors.gray300 }]}>
-                                    Sub Goal - 매일 꾸준히 운동하기
-                                </Text>
+                                {mission.subTitle ? (
+                                    <Text style={[Typo.label03, { color: Colors.gray300 }]}>
+                                        {mission.subTitle}
+                                    </Text>
+                                ) : null}
                             </View>
 
                             {/* 오른쪽 시간 */}
                             <Text style={[Typo.label02, { color: Colors.gray900 }]}>
-                                {mission.mission_start_time} - {mission.mission_end_time}
+                                {mission.startTime || '시간 미정'}
+                                {mission.endTime ? ` - ${mission.endTime}` : ''}
                             </Text>
                         </View>
                     ))
@@ -315,6 +460,9 @@ const styles = StyleSheet.create({
         height: 24,
         borderRadius: 12,
         backgroundColor: Colors.gray100,
+    },
+    futureCircleFuture: {
+        backgroundColor: Colors.gray200,
     },
 
     headerOuter: {

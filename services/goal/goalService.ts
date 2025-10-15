@@ -13,6 +13,8 @@ import type {
   SelectedSubGoalsRequest,
   SelectedSubGoalsResponse,
   CommitGoalDraftResponse,
+  GoalSubgoalResponse,
+  GoalSubgoal,
 } from '../../types/goal';
 
 const BASE_URL = API_BASE_URL || 'https://your-api-server.com/api';
@@ -195,6 +197,66 @@ export async function createManualSubGoal(
   } catch (error) {
     throw new Error(
       `[GoalService] Invalid manual subgoal response: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
+    );
+  }
+}
+
+export async function fetchGoalSubGoals(
+  goalId: number | string,
+  sort: string = 'CREATED_AT',
+): Promise<GoalSubgoal[]> {
+  const resolvedGoalId = encodeURIComponent(String(goalId));
+  console.log(
+    `[GoalService] fetchGoalSubGoals goalId=${resolvedGoalId}, sort=${sort}`,
+  );
+
+  const response = await authenticatedFetch(
+    `${BASE_URL}/goals/${resolvedGoalId}/subgoals?sort=${encodeURIComponent(sort)}`,
+  );
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      console.log('[GoalService] fetchGoalSubGoals 404: no subgoals found');
+      return [];
+    }
+    const errorText = await response.text();
+    throw new Error(
+      `[GoalService] Failed to fetch goal subgoals: ${response.status} ${errorText}`,
+    );
+  }
+
+  const raw = await response.text();
+  if (!raw) {
+    console.log('[GoalService] fetchGoalSubGoals response: (empty body)');
+    return [];
+  }
+
+  try {
+    const data = JSON.parse(raw) as GoalSubgoalResponse;
+    console.log(
+      '[GoalService] fetchGoalSubGoals parsed response:',
+      JSON.stringify(data),
+    );
+    const result = Array.isArray(data?.result) ? data.result : data;
+    if (Array.isArray(result)) {
+      return result.map((item) => ({
+        id: item.id ?? item.subgoalId,
+        subgoalId: item.subgoalId ?? item.id,
+        goalId: item.goalId,
+        title: item.title ?? item.subgoalTitle,
+        status: item.status,
+        completed: item.completed,
+      }));
+    }
+    if (Array.isArray((data as GoalSubgoalResponse)?.result)) {
+      return data.result ?? [];
+    }
+    return [];
+  } catch (error) {
+    throw new Error(
+      `[GoalService] Invalid goal subgoal response: ${
         error instanceof Error ? error.message : 'Unknown error'
       }`,
     );
