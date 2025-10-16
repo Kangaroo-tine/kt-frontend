@@ -1,22 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, StatusBar, Keyboard, TouchableWithoutFeedback, Animated } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CustomButton from "@/components/button/MypageEditBtn";
-import { useRouter } from 'expo-router';
-
+//아이콘
+import BackArrow from '@/assets/icon/arrow/back_arrow.svg';
+import CloseRedIcon from '@/assets/icon/x_icon/red.svg';
+import ProfilePhoto from '@/assets/temp/temp_profile_edit.svg';
+import CustomButton from '@/components/button/MypageEditBtn';
 //폰트, 컬러
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
-
-//아이콘
-import BackArrow from '@/assets/icon/arrow/back_arrow.svg';
-import ProfilePhoto from '@/assets/temp/temp_profile_edit.svg';
-import CloseRedIcon from '@/assets/icon/x_icon/red.svg';
 import { AuthService } from '@/services/auth/authService';
+
+import React, { useEffect, useRef, useState } from 'react';
+
+import {
+  Animated,
+  Image,
+  Keyboard,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //커스텀 토스트
 function CustomToast({ message }: { message: string }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // 투명도 0으로 시작 
+  const fadeAnim = useRef(new Animated.Value(0)).current; // 투명도 0으로 시작
   useEffect(() => {
     if (message) {
       // 토스트가 새로 생기면 페이드 인 → 0.3초 대기 → 페이드 아웃
@@ -50,15 +62,72 @@ export default function ProfileEdit() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const [nameActive, setNameActive] = useState(false);
   const [emailActive, setEmailActive] = useState(false);
   const [emailError, setEmailError] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProfile = async () => {
+      setIsLoadingProfile(true);
+      setLoadError(null);
+      try {
+        const response = await AuthService.fetchProfile();
+        if (!isMounted) {
+          return;
+        }
+        const result = response?.result;
+        if (result?.nickname) {
+          setName(result.nickname);
+        } else {
+          setName('');
+        }
+        if (result?.email) {
+          setEmail(result.email);
+        } else {
+          setEmail('');
+        }
+        setProfileImageUrl(result?.profileImageUrl ?? null);
+        setImageError(false);
+        console.log('[ProfileEdit] Profile loaded:', JSON.stringify(result));
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+        console.error('[ProfileEdit] Failed to load profile:', error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : '프로필 정보를 불러오지 못했습니다.';
+        setLoadError(message);
+        setToastMessage('');
+        setTimeout(() => {
+          setToastMessage(message);
+        }, 100);
+      } finally {
+        if (isMounted) {
+          setIsLoadingProfile(false);
+        }
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   //올바른 이메일 입력 형식
   const validateEmail = (text: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -74,9 +143,10 @@ export default function ProfileEdit() {
     if (email && !validateEmail(email)) {
       console.log('[ProfileEdit] Invalid email format detected:', email);
       setEmailError(true);
-      setToastMessage(""); // 기존 비우고
+      setToastMessage(''); // 기존 비우고
       setTimeout(() => {
-        setToastMessage("이메일 형식이 올바르지 않습니다"); }, 100);
+        setToastMessage('이메일 형식이 올바르지 않습니다');
+      }, 100);
       return;
     }
     setEmailError(false);
@@ -91,10 +161,14 @@ export default function ProfileEdit() {
         email: trimmedEmail || null,
         profileImageUrl: null,
       });
-      console.log('[ProfileEdit] Profile update response:', JSON.stringify(response));
+      console.log(
+        '[ProfileEdit] Profile update response:',
+        JSON.stringify(response),
+      );
 
       const updatedNickname = response?.result?.nickname;
       const updatedEmail = response?.result?.email;
+      const updatedProfileImage = response?.result?.profileImageUrl;
 
       if (updatedNickname !== undefined) {
         setName(updatedNickname);
@@ -104,9 +178,14 @@ export default function ProfileEdit() {
         setEmail(updatedEmail);
       }
 
-      setToastMessage("");
+      if (updatedProfileImage !== undefined) {
+        setProfileImageUrl(updatedProfileImage ?? null);
+        setImageError(false);
+      }
+
+      setToastMessage('');
       setTimeout(() => {
-        setToastMessage(response?.message || "프로필이 변경되었습니다");
+        setToastMessage(response?.message || '프로필이 변경되었습니다');
       }, 100);
       Keyboard.dismiss();
     } catch (error) {
@@ -114,8 +193,8 @@ export default function ProfileEdit() {
       const message =
         error instanceof Error
           ? error.message
-          : "프로필 수정 중 문제가 발생했습니다.";
-      setToastMessage("");
+          : '프로필 수정 중 문제가 발생했습니다.';
+      setToastMessage('');
       setTimeout(() => {
         setToastMessage(message);
       }, 100);
@@ -131,15 +210,18 @@ export default function ProfileEdit() {
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         {/* 헤더 */}
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
             <BackArrow width={24} height={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>프로필 수정</Text>
           {/* 완료 버튼 */}
-          <View style= {styles.completeBtnWrapper}>
+          <View style={styles.completeBtnWrapper}>
             <CustomButton
               label="완료"
-              active={!isSubmitting && (!!name || !!email)}
+              active={!isLoadingProfile && !isSubmitting && (!!name || !!email)}
               onPress={handleComplete}
             />
           </View>
@@ -147,11 +229,38 @@ export default function ProfileEdit() {
 
         {/* 프로필 사진 */}
         <View style={styles.profilePhoto}>
-          <ProfilePhoto />
+          {profileImageUrl && !imageError ? (
+            <Image
+              source={{ uri: profileImageUrl }}
+              style={styles.profilePhotoImage}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <ProfilePhoto />
+          )}
         </View>
 
         {/* 입력 폼 */}
         <View style={styles.textEditWrapper}>
+          {isLoadingProfile ? (
+            <Text
+              style={[
+                Typo.label03,
+                { color: Colors.gray300, marginBottom: 12 },
+              ]}
+            >
+              프로필 정보를 불러오는 중이에요...
+            </Text>
+          ) : loadError ? (
+            <Text
+              style={[
+                Typo.label03,
+                { color: Colors.main600, marginBottom: 12 },
+              ]}
+            >
+              {loadError}
+            </Text>
+          ) : null}
           {/* 이름 */}
           <Text style={styles.label}>이름</Text>
           <View style={styles.inputWrapper}>
@@ -170,7 +279,7 @@ export default function ProfileEdit() {
               onChangeText={setName}
             />
           </View>
-          
+
           {/* 이메일 */}
           <Text style={styles.label}>이메일</Text>
           <View style={styles.inputWrapper}>
@@ -195,7 +304,7 @@ export default function ProfileEdit() {
             {emailError && (
               <TouchableOpacity
                 onPress={() => {
-                  setEmail("");
+                  setEmail('');
                   setEmailError(false);
                 }}
               >
@@ -204,14 +313,13 @@ export default function ProfileEdit() {
             )}
           </View>
         </View>
-          
+
         {/* 커스텀 토스트 */}
         <CustomToast message={toastMessage} />
-
       </View>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -243,6 +351,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  profilePhotoImage: {
+    width: 85,
+    height: 85,
+    borderRadius: 12,
+  },
   //텍스트 수정
   textEditWrapper: {
     padding: 20,
@@ -254,8 +367,8 @@ const styles = StyleSheet.create({
     color: Colors.gray900,
   },
   inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
     borderBottomWidth: 1,
@@ -267,10 +380,10 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.main600,
   },
   errorInput: {
-    borderBottomColor: "red",
+    borderBottomColor: 'red',
   },
   toastContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 30,
     left: 10,
     right: 10,
@@ -278,7 +391,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 0,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
   },
   toastText: {
     color: Colors.gray900,

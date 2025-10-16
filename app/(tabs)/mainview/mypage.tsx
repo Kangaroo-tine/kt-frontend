@@ -10,12 +10,14 @@ import PortraitIcon from '@/assets/icon/blackline_icon/portrait.svg';
 import { Colors } from '@/constants/Colors';
 import { Typo } from '@/constants/Typo';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { useRouter } from 'expo-router';
 import { SvgProps } from 'react-native-svg';
+import { AuthService } from '@/services/auth/authService';
+import type { ProfileResponseResult } from '@/types/auth';
 
 type MenuItemProps = {
   icon: React.FC<SvgProps>;
@@ -36,17 +38,88 @@ const MenuItem = ({ icon: Icon, label, onPress }: MenuItemProps) => (
 //dependent 마이페이지 구현
 const MyPage = () => {
   const router = useRouter();
-  const userName = '장효원';
-  const userEmail = 'emailaddress@email.com';
+  const [profile, setProfile] = useState<ProfileResponseResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadProfile = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await AuthService.fetchProfile();
+        if (!isMounted) {
+          return;
+        }
+        const result = response?.result ?? null;
+        setProfile(result);
+        setImageError(false);
+        console.log('[MyPage] Profile fetched:', JSON.stringify(result));
+      } catch (err) {
+        if (!isMounted) {
+          return;
+        }
+        console.error('[MyPage] Failed to fetch profile:', err);
+        const message =
+          err instanceof Error ? err.message : '프로필 정보를 불러오지 못했습니다.';
+        setError(message);
+        setProfile(null);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const userName = profile?.nickname ?? '알 수 없는 사용자';
+  const userEmail = profile?.email ?? '이메일 정보가 없습니다.';
+  const profileImageUrl =
+    profile?.profileImageUrl && !imageError ? profile.profileImageUrl : undefined;
+
+  useEffect(() => {
+    setImageError(false);
+  }, [profile?.profileImageUrl]);
 
   //가장 바깥을 SafeAreaView로 감쌀지 고민 중. 일단 테스트 해보고 비교해보자.
   return (
     <View style={styles.container}>
       {/* 프로필 카드 */}
       <View style={styles.profileCard}>
-        <View style={styles.profileImage} />
-        <Text style={styles.profileName}>{userName}</Text>
-        <Text style={styles.profileEmail}>{userEmail}</Text>
+        <View style={styles.profileImageContainer}>
+          {profileImageUrl ? (
+            <Image
+              source={{ uri: profileImageUrl }}
+              style={styles.profileImage}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <View style={styles.profileImagePlaceholder}>
+              <Text style={styles.profileInitial}>
+                {userName ? userName.charAt(0) : '?'}
+              </Text>
+            </View>
+          )}
+        </View>
+        {isLoading ? (
+          <ActivityIndicator size="small" color={Colors.main600} />
+        ) : (
+          <>
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileEmail}>{userEmail}</Text>
+            {error ? (
+              <Text style={styles.profileError}>{error}</Text>
+            ) : null}
+          </>
+        )}
       </View>
       {/* MY 섹션 */}
       <View style={styles.section}>
@@ -107,12 +180,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 12,
   },
-  profileImage: {
+  profileImageContainer: {
     width: 56,
     height: 56,
     borderRadius: 12,
-    backgroundColor: '#D9D9D9',
+    overflow: 'hidden',
     marginBottom: 16,
+    backgroundColor: '#D9D9D9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profileImagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#D9D9D9',
+  },
+  profileInitial: {
+    ...Typo.heading02,
+    color: Colors.gray600,
   },
   profileName: {
     ...Typo.heading02,
@@ -123,6 +214,11 @@ const styles = StyleSheet.create({
     ...Typo.label02,
     color: Colors.gray300,
     marginTop: 4,
+  },
+  profileError: {
+    ...Typo.label03,
+    color: Colors.main600,
+    marginTop: 6,
   },
   section: {
     marginBottom: 24,
