@@ -28,6 +28,7 @@ import { fetchGoalSubGoals } from '@/services/goal/goalService';
 import { fetchGoalsRibbon } from '@/services/home/homeService';
 import { createSchedule } from '@/services/schedule/scheduleService';
 import type { GoalsRibbonGoal } from '@/types/home';
+import type { GoalSubgoal } from '@/types/goal';
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const HHMM = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -200,12 +201,9 @@ export default function ScheduleAddScreen() {
         const response = await fetchGoalsRibbon();
         if (!isMounted) return;
 
-        const items: GoalsRibbonGoal[] = Array.isArray(response)
-          ? response
-          : Array.isArray((response as any)?.result)
-            ? (response as any).result
-            : [];
-        const mapped = items.map((goal) => ({
+        const items: GoalsRibbonGoal[] = Array.isArray(response) ? response : [];
+
+        const mapped = items.map((goal: GoalsRibbonGoal) => ({
           id: String(goal.id),
           title: goal.title ?? '',
           category: mapGoalCategory(goal.category),
@@ -247,15 +245,11 @@ export default function ScheduleAddScreen() {
         const response = await fetchGoalSubGoals(selectedGoal.id);
         if (!isMounted) return;
 
-        const items = Array.isArray(response)
-          ? response
-          : Array.isArray(response?.result)
-            ? response.result
-            : [];
+        const items = Array.isArray(response) ? response : [];
 
         const mapped = items
-          .filter((item) => item.id !== undefined || item.subgoalId !== undefined)
-          .map((item) => ({
+          .filter((item): item is GoalSubgoal => item.id !== undefined || item.subgoalId !== undefined)
+          .map((item: GoalSubgoal) => ({
             id: String(item.id ?? item.subgoalId),
             title: item.title ?? item.subgoalTitle ?? '',
           }));
