@@ -10,14 +10,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Alert,
   type KeyboardEvent,
   type KeyboardEventName,
 } from 'react-native';
 console.log('📍 kelper 렌더링');
 import { useNavigation } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
+import { fetchGoalsRibbon } from '@/services/home/homeService';
+import { requestKelperChat } from '@/services/kelper/kelperService';
+import type { GoalsRibbonGoal } from '@/types/home';
+import type { Message } from '@/types/message';
 
 //아이콘
 import BackIcon from '@/assets/icon/arrow/back_arrow.svg';
@@ -37,20 +41,27 @@ import { Typo } from '@/constants/Typo';
 import { Colors } from '@/constants/Colors';
 
 //데이터 타입
-import { Message } from '@/types/message';
 
 
 const BOX_H = 48;
 
-// 더미 메인골
-const DUMMY_MAIN_GOALS = [
-  { id: 'g1', label: '요가 고수되기' },
-  { id: 'g2', label: '일본어 프리토킹 하기' },
-  { id: 'g3', label: '다이어트 성공' },
-];
+type GoalOption = {
+  id: string;
+  label: string;
+  apiId: number | string;
+};
 
 // 이유 선택(고정) + 모드 매핑
 type ReasonId = 'motivation' | 'ambivalence' | 'negative' | 'procrast' | 'plan' | 'no_reward';
+const DIFFICULTY_REASON_MAP: Record<ReasonId, number> = {
+  motivation: 0,
+  ambivalence: 1,
+  negative: 2,
+  procrast: 3,
+  plan: 4,
+  no_reward: 5,
+};
+
 type Mode = 'CBT' | 'MI' | 'EXEC'; // 실행지원 = EXEC
 const REASONS: {
   id: ReasonId;
@@ -66,9 +77,6 @@ const REASONS: {
   { id: 'no_reward', label: '즉각적 보상 없음', Icon: RewardIcon, mode: 'EXEC' },
 ];
 
-const modeLabel = (m: Mode) =>
-  m === 'CBT' ? 'CBT 모드' : m === 'MI' ? 'MI 모드' : '실행 지원 모드';
-
 const Kelper = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -82,10 +90,14 @@ const Kelper = () => {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef<FlatList<Message>>(null);
 
-  const [selectedMainGoalId, setSelectedMainGoalId] = useState<string | null>(null); // 메인골 단일 선택 상태
+  const [mainGoals, setMainGoals] = useState<GoalOption[]>([]);
+  const [isLoadingGoals, setIsLoadingGoals] = useState(false);
+  const [goalsError, setGoalsError] = useState<string | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<GoalOption | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false); // 메인골 선택되면 true로
   const [selectedReasonId, setSelectedReasonId] = useState<ReasonId | null>(null); // 이유 선택
   const [selectedMode, setSelectedMode] = useState<Mode | null>(null); // 모드
+  const [isSending, setIsSending] = useState(false);
 
   // 키보드 핸들링
   useEffect(() => {
@@ -106,46 +118,146 @@ const Kelper = () => {
     };
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadGoals = async () => {
+      setIsLoadingGoals(true);
+      setGoalsError(null);
+      try {
+        const response = await fetchGoalsRibbon();
+        if (!isMounted) {
+          return;
+        }
+        const mapped: GoalOption[] = response.map((goal: GoalsRibbonGoal) => ({
+          id: String(goal.id),
+          label: goal.title ?? '',
+          apiId: goal.id ?? String(goal.id),
+        }));
+        setMainGoals(mapped);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+        console.error('[Kelper] Failed to fetch goals:', error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : '메인 목표를 불러오지 못했습니다.';
+        setGoalsError(message);
+        setMainGoals([]);
+      } finally {
+        if (isMounted) {
+          setIsLoadingGoals(false);
+        }
+      }
+    };
+
+    loadGoals();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // 텍스트 전송
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const text = inputText.trim();
-    if (!text) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: String(Date.now()), text, sender: 'user', timestamp: formatClock(new Date()) },
-    ]);
+    if (!text) {
+      return;
+    }
+    if (!selectedGoal) {
+      Alert.alert('메인 목표 선택', 'AI Kelper와 대화를 시작하려면 메인 목표를 선택해주세요.');
+      return;
+    }
+    if (!selectedReasonId) {
+      Alert.alert('이유 선택', '현재 겪는 어려움의 이유를 선택해주세요.');
+      return;
+    }
+    if (isSending) {
+      return;
+    }
+
+    const now = new Date();
+    const userMessage: Message = {
+      id: `user-${now.getTime()}`,
+      text,
+      sender: 'user',
+      timestamp: formatClock(now),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+
+    let goalIdPayload: number | string = selectedGoal.apiId;
+    const parsedGoalId = Number(goalIdPayload);
+    if (!Number.isNaN(parsedGoalId)) {
+      goalIdPayload = parsedGoalId;
+    }
+    const difficultyReasonPayload = selectedReasonId
+      ? DIFFICULTY_REASON_MAP[selectedReasonId]
+      : undefined;
+
+    try {
+      setIsSending(true);
+      const response = await requestKelperChat({
+        goalId: goalIdPayload,
+        difficultyReason: difficultyReasonPayload ?? 0,
+        userMessage: text,
+      });
+      const resultText =
+        typeof response?.result === 'string' && response.result.trim()
+          ? response.result.trim()
+          : response?.message ?? '응답을 불러오지 못했습니다.';
+      const aiMessage: Message = {
+        id: `ai-${Date.now()}`,
+        text: resultText,
+        sender: 'ai',
+        timestamp: formatClock(new Date()),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+    } catch (error) {
+      console.error('[Kelper] requestKelperChat failed:', error);
+      const fallback =
+        error instanceof Error
+          ? error.message
+          : '챗봇 응답을 불러오지 못했습니다.';
+      const aiMessage: Message = {
+        id: `ai-${Date.now()}`,
+        text: fallback,
+        sender: 'ai',
+        timestamp: formatClock(new Date()),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   // 메인골 선택 (단일 선택)
   const onSelectMainGoal = (goalId: string) => {
-    setSelectedMainGoalId(goalId);
-    const g = DUMMY_MAIN_GOALS.find((x) => x.id === goalId);
-    sendSelectedMainGoalToServer(g?.id ?? null, g?.label ?? null);
-
-    setReasonOpen(false);   //처음 상태는 토글 오프
+    const goal = mainGoals.find((g) => g.id === goalId) ?? null;
+    setSelectedGoal(goal);
+    setReasonOpen(true);
     setSelectedReasonId(null);
     setSelectedMode(null);
-  };
-
-  // 선택된 메인골 - 백엔드 전송용 빈 함수 (TODO)
-  const sendSelectedMainGoalToServer = async (goalId: string | null, goalLabel: string | null) => {
-    // TODO: await api.kelper.setMainGoal({ goalId, goalLabel });
+    console.log('[Kelper] Selected main goal:', goalId);
   };
 
   // 이유 선택 (단일 선택)
   const onSelectReason = (rid: ReasonId) => {
-    if (selectedReasonId) return; // 이미 선택되면 변경 불가 (필요 시 제거)
-    const r = REASONS.find((x) => x.id === rid)!;
-    setSelectedReasonId(r.id);
-    setSelectedMode(r.mode);
-    setReasonOpen(false); // 접기
-    sendSelectedReasonToServer(r.id, r.mode);
-  };
-  // 선택된 이유 - 백엔드 전송용 빈 함수 (TODO)
-  const sendSelectedReasonToServer = async (reasonId: ReasonId, mode: Mode) => {
-    // TODO: await api.kelper.setReason({ reasonId, mode });
+    if (selectedReasonId) return;
+    const reason = REASONS.find((x) => x.id === rid);
+    if (!reason) {
+      return;
+    }
+    setSelectedReasonId(reason.id);
+    setSelectedMode(reason.mode);
+    setReasonOpen(false);
+    console.log('[Kelper] Selected difficulty reason:', reason.id, reason.mode);
   };
 
   // 메시지 렌더
@@ -186,21 +298,33 @@ const Kelper = () => {
           <Text style={[styles.messageText, styles.aiMessageText, { marginBottom: 12 }]}>
             AI Kelper와 이야기 나누고 싶은{'\n'}메인 골을 골라주세요.
           </Text>
-          {DUMMY_MAIN_GOALS.map((g) => {
-            const active = selectedMainGoalId === g.id;
-            return (
-              <TouchableOpacity
-                key={g.id}
-                onPress={() => onSelectMainGoal(g.id)}
-                activeOpacity={0.9}
-                style={[styles.goalOption, active && styles.goalOptionActive]}
-              >
-                <Text style={[styles.goalOptionText, active && styles.goalOptionTextActive]} numberOfLines={2} ellipsizeMode="tail">
-                  {g.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+         {isLoadingGoals ? (
+            <Text style={[Typo.label03, { color: Colors.gray300 }]}>메인 목표를 불러오는 중이에요...</Text>
+          ) : goalsError ? (
+            <Text style={[Typo.label03, { color: Colors.main600 }]}>{goalsError}</Text>
+          ) : mainGoals.length === 0 ? (
+            <Text style={[Typo.label03, { color: Colors.gray300 }]}>등록된 메인 목표가 없어요.</Text>
+          ) : (
+            mainGoals.map((goal) => {
+              const active = selectedGoal?.id === goal.id;
+              return (
+                <TouchableOpacity
+                  key={goal.id}
+                  onPress={() => onSelectMainGoal(goal.id)}
+                  activeOpacity={0.9}
+                  style={[styles.goalOption, active && styles.goalOptionActive]}
+                >
+                  <Text
+                    style={[styles.goalOptionText, active && styles.goalOptionTextActive]}
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                  >
+                    {goal.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
+          )}
         </View>
         <Text style={styles.timestamp}>{ts}</Text>
       </View>
@@ -208,7 +332,7 @@ const Kelper = () => {
   };
 
   const ReasonPickerBubble = () => {
-    if (!selectedMainGoalId) return null;
+    if (!selectedGoal) return null;
     const ts = formatClock(new Date());
     const selected = REASONS.find((r) => r.id === selectedReasonId);
     return (
@@ -386,9 +510,12 @@ const Kelper = () => {
 
               <View style={styles.inputButtons}>
                 <TouchableOpacity
-                  style={[styles.sendButton, inputText.trim() && styles.sendButtonActive]}
+                  style={[
+                    styles.sendButton,
+                    inputText.trim() && !isSending ? styles.sendButtonActive : null,
+                  ]}
                   onPress={sendMessage}
-                  disabled={!inputText.trim()}
+                  disabled={!inputText.trim() || isSending}
                   accessibilityLabel="메시지 보내기"
                 >
                   <SendIcon width={18} height={18} />
@@ -512,7 +639,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   goalOptionText: { ...Typo.body02, 
-    color: Colors.gray300 },
+    color: Colors.gray600 },
   goalOptionTextActive: { color: Colors.main900 },
 
   // 이유 선택 버블

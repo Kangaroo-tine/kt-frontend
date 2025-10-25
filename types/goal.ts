@@ -100,3 +100,22 @@ export interface CommitGoalDraftResponse {
   success?: boolean;
   [key: string]: unknown;
 }
+
+export interface GoalSubgoal {
+  id?: number | string;
+  goalId?: number | string;
+  subgoalId?: number | string;
+  title?: string;
+  subgoalTitle?: string;
+  status?: string;
+  completed?: boolean;
+  [key: string]: unknown;
+}
+
+export interface GoalSubgoalResponse {
+  code?: string;
+  message?: string;
+  result?: GoalSubgoal[];
+  success?: boolean;
+  [key: string]: unknown;
+}

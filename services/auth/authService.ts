@@ -10,6 +10,7 @@ import type {
   UpdateProfileRequest,
   UpdateProfileResponse,
   WithdrawResponse,
+  ProfileResponse,
 } from '../../types/auth';
 
 const AUTH_KEYS = {
@@ -160,6 +161,57 @@ export class AuthService {
   static async isAuthenticated(): Promise<boolean> {
     const accessToken = await this.getAccessToken();
     return accessToken !== null;
+  }
+
+  /**
+   * 프로필 조회
+   */
+  static async fetchProfile(): Promise<ProfileResponse> {
+    const accessToken = await this.getAccessToken();
+
+    if (!accessToken) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    const url = `${this.baseUrl}/auth/profile`;
+    console.log('[AuthService] fetchProfile request URL:', url);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      '[AuthService] fetchProfile response status:',
+      response.status,
+      response.statusText,
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AuthService] fetchProfile error body:', errorText);
+      throw new Error(errorText || response.statusText || String(response.status));
+    }
+
+    if (response.status === 204) {
+      console.log('[AuthService] fetchProfile response: 204 No Content');
+      return {};
+    }
+
+    try {
+      const data = (await response.json()) as ProfileResponse;
+      console.log('[AuthService] fetchProfile parsed response:', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.error('[AuthService] fetchProfile parse error:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(String(error));
+    }
   }
 
   /**

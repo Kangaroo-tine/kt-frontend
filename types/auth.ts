@@ -49,3 +49,19 @@ export interface WithdrawResponse {
   result?: string;
   [key: string]: unknown;
 }
+
+export interface ProfileResponseResult {
+  id?: number | string;
+  nickname?: string;
+  email?: string;
+  profileImageUrl?: string;
+  [key: string]: unknown;
+}
+
+export interface ProfileResponse {
+  isSuccess?: boolean;
+  code?: string;
+  message?: string;
+  result?: ProfileResponseResult;
+  [key: string]: unknown;
+}
